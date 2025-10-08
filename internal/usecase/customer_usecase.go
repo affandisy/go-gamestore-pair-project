@@ -1,14 +1,55 @@
 package usecase
 
 import (
-	"context"
+	"errors"
 	"gamestore/internal/domain"
+	"time"
 )
 
-type UserRepository interface {
-	Create(ctx context.Context, u *domain.Customer) (int64, error)
-	GetById(ctx context.Context, id int64) (*domain.Customer, error)
-	Update(ctx context.Context, u *domain.Customer) error
-	Delete(ctx context.Context, id int64) error
-	List(ctx context.Context, limit, offset int) ([]domain.Customer, error)
+type CustomerRepository interface {
+	Create(Customer *domain.Customer) error
+	FindAll() ([]domain.Customer, error)
+	FindById(id int64) (*domain.Customer, error)
+	Update(Customer *domain.Customer) error
+	Delete(id int64) error
+}
+
+type CustomerUsecase struct {
+	repo CustomerRepository
+}
+
+func NewCustomerUsecase(repo CustomerRepository) *CustomerUsecase {
+	return &CustomerUsecase{repo: repo}
+}
+
+func (u *CustomerUsecase) CreateCustomer(name, email, password string) error {
+	customer := &domain.Customer{
+		Name:      name,
+		Email:     email,
+		Password:  password,
+		CreatedAt: time.Now(),
+		UpdatedAt: time.Now(),
+	}
+
+	return u.repo.Create(customer)
+}
+
+func (u *CustomerUsecase) FindAllCustomer() ([]domain.Customer, error) {
+	return u.repo.FindAll()
+}
+
+func (u *CustomerUsecase) FindCustomerByID(id int64) (*domain.Customer, error) {
+	return u.repo.FindById(id)
+}
+
+func (u *CustomerUsecase) UpdateCustomer(customer *domain.Customer) error {
+	if customer == nil {
+		return errors.New("customer tidak boleh kosong")
+	}
+	customer.UpdatedAt = time.Now()
+	return u.repo.Update(customer)
+}
+
+func (u *CustomerUsecase) DeleteCustomer(id int64) error {
+	return u.repo.Delete(id)
 }
