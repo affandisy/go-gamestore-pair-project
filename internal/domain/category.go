@@ -7,5 +7,5 @@ package domain
 
 type Category struct {
 	categoryID int64
-	name       string
+	Name       string
 }
