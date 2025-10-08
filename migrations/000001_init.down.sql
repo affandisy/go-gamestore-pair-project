@@ -1,0 +1,7 @@
+-- DROP all tables in reverse order of creation to avoid FK constraint errors
+
+DROP TABLE IF EXISTS Payments CASCADE;
+DROP TABLE IF EXISTS Orders CASCADE;
+DROP TABLE IF EXISTS Games CASCADE;
+DROP TABLE IF EXISTS Categories CASCADE;
+DROP TABLE IF EXISTS Customers CASCADE;
