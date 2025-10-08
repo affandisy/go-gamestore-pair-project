@@ -12,10 +12,10 @@ import "time"
 // );
 
 type Customer struct {
-	customerID int64
-	name       string
-	email      string
-	password   string
-	created_at time.Time
-	updated_at time.Time
+	CustomerID int64     `json:"customerID"`
+	Name       string    `json:"name"`
+	Email      string    `json:"email"`
+	Password   string    `json:"password"`
+	CreatedAt  time.Time `json:"created_at"`
+	UpdatedAt  time.Time `json:"updated_at"`
 }
