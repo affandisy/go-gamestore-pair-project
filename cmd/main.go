@@ -1,10 +1,12 @@
 package main
 
-import "gamestore/gamestore/internal/connections"
+import "gamestore/internal/connections"
 
 func main() {
 	connections.NewConnection()
 }
 
 // KATEGORI PENILAIN
-// de
+// debuggin
+// problem solving
+// testify, database deployment

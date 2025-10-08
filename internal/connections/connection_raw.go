@@ -8,6 +8,10 @@ import (
 	_ "github.com/lib/pq"
 )
 
+// type DB struct {
+// 	Conn *sql.DB
+// }
+
 func NewConnection() *sql.DB {
 	dsn := "postgres://postgres:@localhost:5432/gamestore?sslmode=disable"
 
