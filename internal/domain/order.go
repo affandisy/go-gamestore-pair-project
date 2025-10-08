@@ -10,8 +10,8 @@ import "time"
 // );
 
 type Order struct {
-	orderID    int64
-	customerID int64
-	gameID     int64
-	created_at time.Time
+	OrderID    int64
+	CustomerID int64
+	GameID     int64
+	CreatedAt  time.Time
 }
