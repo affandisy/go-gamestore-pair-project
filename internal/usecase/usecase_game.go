@@ -24,7 +24,7 @@ func NewGameUsecase(repo GameRepository) *GameUsecase {
 func (u *GameUsecase) CreateGame(categoryID int64, titles string, price float64) error {
 	game := domain.Game{
 		CategoryID: categoryID,
-		Titles:     titles,
+		Title:      titles,
 		Price:      price,
 		Created_at: time.Now(),
 		Updated_at: time.Now(),

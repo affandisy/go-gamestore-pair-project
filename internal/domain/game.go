@@ -14,7 +14,7 @@ import "time"
 type Game struct {
 	GameID     int64
 	CategoryID int64
-	Titles     string
+	Title      string
 	Price      float64
 	Created_at time.Time
 	Updated_at time.Time

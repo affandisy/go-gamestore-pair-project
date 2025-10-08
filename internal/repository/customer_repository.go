@@ -1,4 +1,7 @@
 package repository
 
-type CustomerRepo struct {
+import "database/sql"
+
+type CustomerRepository struct {
+	DB *sql.DB
 }
