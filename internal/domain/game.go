@@ -12,10 +12,10 @@ import "time"
 // );
 
 type Game struct {
-	gameID     int64
-	categoryID int64
-	titles     string
-	price      float64
-	created_at time.Time
-	updated_at time.Time
+	GameID     int64
+	CategoryID int64
+	Titles     string
+	Price      float64
+	Created_at time.Time
+	Updated_at time.Time
 }
