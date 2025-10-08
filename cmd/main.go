@@ -3,7 +3,8 @@ package main
 import "gamestore/internal/connections"
 
 func main() {
-	connections.NewConnection()
+	db := connections.NewConnection()
+	defer db.Close()
 }
 
 // KATEGORI PENILAIN
