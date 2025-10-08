@@ -6,6 +6,6 @@ package domain
 // );
 
 type Category struct {
-	categoryID int64
+	CategoryID int64
 	Name       string
 }
