@@ -7,7 +7,7 @@ import (
 	"github.com/manifoldco/promptui"
 )
 
-func gameStore(ucGame *usecase.GameUsecase, ucCat *usecase.CategoryUsecase) {
+func gameStore(customerID int64, ucGame *usecase.GameUsecase, ucCat *usecase.CategoryUsecase, ucOrder *usecase.Orderusecase) {
 	for {
 		categories, err := ucCat.FindAllCategories()
 		if err != nil {
@@ -70,22 +70,27 @@ func gameStore(ucGame *usecase.GameUsecase, ucCat *usecase.CategoryUsecase) {
 				menuGame := promptui.Select{
 					Label: game.Title,
 					Items: []string{
-						"Buy",
-						"Wishlist",
+						"Add To Orders Cart",
 						"Back",
 					},
 				}
 
 				_, selectedMenuGame, _ := menuGame.Run()
 
+				var isAdded = false
 				switch selectedMenuGame {
-				case "Buy":
-					fmt.Println("Buy")
-				case "Wishlist":
-					fmt.Println("Wishlist")
+				case "Add To Orders Cart":
+					err := ucOrder.CreateOrder(customerID, game.GameID)
+					if err != nil {
+						fmt.Println("Error: ", err)
+						continue
+					}
+
+					fmt.Printf("%s berhasil dimasukkan ke orders\n", game.Title)
+					isAdded = true
 				}
 
-				if selectedMenuGame == "Back" {
+				if isAdded || selectedMenuGame == "Back" {
 					break
 				}
 			}

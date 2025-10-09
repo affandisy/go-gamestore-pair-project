@@ -10,7 +10,7 @@ import (
 type PaymentRepository interface {
 	Create(payment *domain.Payment) error
 	FindAll() ([]domain.Payment, error)
-	FindByID(id int64) (*domain.Payment, error)
+	FindById(id int64) (*domain.Payment, error)
 	Update(payment *domain.Payment) error
 	Delete(id int64) error
 }
@@ -39,7 +39,7 @@ func (u *Paymentusecase) FindAllPayments() ([]domain.Payment, error) {
 }
 
 func (u *Paymentusecase) FindPaymentByID(id int64) (*domain.Payment, error) {
-	return u.repo.FindByID(id)
+	return u.repo.FindById(id)
 }
 
 func (u *Paymentusecase) UpdatePayment(payment *domain.Payment) error {
