@@ -429,6 +429,51 @@ func categoryDatabase(uc *usecase.CategoryUsecase) {
 
 }
 
-func adminReport(uc *usecase.GameUsecase) {
+func adminReport(customerUC *usecase.CustomerUsecase, gameUC *usecase.GameUsecase, orderUC *usecase.Orderusecase, paymentUC *usecase.Paymentusecase) {
+	fmt.Println("=== Admin Report ===")
 
+	fmt.Println("[1] History Pembelian Customer")
+	customers, _ := customerUC.FindAllCustomer()
+	orders, _ := orderUC.FindAllOrders()
+	games, _ := gameUC.FindAllGame()
+	payments, _ := paymentUC.FindAllPayments()
+
+	customerMap := map[int64]string{}
+	for _, c := range customers {
+		customerMap[c.CustomerID] = c.Name
+	}
+
+	gameMap := map[int64]string{}
+	priceMap := map[int64]float64{}
+	for _, g := range games {
+		gameMap[g.GameID] = g.Title
+		priceMap[g.GameID] = g.Price
+	}
+
+	paymentMap := map[int64]float64{}
+	for _, p := range payments {
+		paymentMap[p.OrderID] = p.Amount
+	}
+
+	t := tablewriter.NewTable(os.Stdout)
+	t.Header("OrderID", "Customer", "Game", "Harga", "Status Pembayaran")
+
+	for _, o := range orders {
+		name := customerMap[o.CustomerID]
+		game := gameMap[o.GameID]
+		price := priceMap[o.GameID]
+		status := "Belum Bayar"
+		if _, ok := paymentMap[o.OrderID]; ok {
+			status = "Lunas"
+		}
+		t.Append([]string{
+			fmt.Sprintf("%d", o.OrderID),
+			name,
+			game,
+			fmt.Sprintf("Rp %.2f", price),
+			status,
+		})
+	}
+
+	t.Render()
 }
