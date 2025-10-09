@@ -7,7 +7,7 @@ import (
 )
 
 type OrderRepository interface {
-	Create(order *domain.Order) error
+	Create(order *domain.Order) (*domain.Order, error)
 	FindAll() ([]domain.Order, error)
 	FindById(id int64) (*domain.Order, error)
 	FindAllByCustomerID(customerID int64) ([]domain.Order, error)
@@ -23,7 +23,7 @@ func NewOrderUsecase(repo OrderRepository) *Orderusecase {
 	return &Orderusecase{repo: repo}
 }
 
-func (u *Orderusecase) CreateOrder(customerID, gameID int64) error {
+func (u *Orderusecase) CreateOrder(customerID, gameID int64) (*domain.Order, error) {
 	order := &domain.Order{
 		CustomerID: customerID,
 		GameID:     gameID,

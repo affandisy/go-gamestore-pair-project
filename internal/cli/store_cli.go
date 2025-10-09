@@ -7,7 +7,7 @@ import (
 	"github.com/manifoldco/promptui"
 )
 
-func gameStore(customerID int64, ucGame *usecase.GameUsecase, ucCat *usecase.CategoryUsecase, ucOrder *usecase.Orderusecase) {
+func gameStore(customerID int64, ucGame *usecase.GameUsecase, ucCat *usecase.CategoryUsecase, ucOrder *usecase.Orderusecase, ucPay *usecase.Paymentusecase) {
 	for {
 		categories, err := ucCat.FindAllCategories()
 		if err != nil {
@@ -67,33 +67,40 @@ func gameStore(customerID int64, ucGame *usecase.GameUsecase, ucCat *usecase.Cat
 					fmt.Println("Error", err)
 				}
 
+				var items = []string{}
+				items = append(items, "Back")
+
 				menuGame := promptui.Select{
 					Label: game.Title,
-					Items: []string{
-						"Buy now",
-						"Add To Orders Cart",
-						"Back",
-					},
+					Items: items,
 				}
 
-				_, selectedMenuGame, _ := menuGame.Run()
+				isPaid := false
+				isAddedToOrder := false
 
-				var isAdded = false
+				_, selectedMenuGame, _ := menuGame.Run()
 				switch selectedMenuGame {
 				case "Buy now":
-
+					order, err := ucOrder.CreateOrder(customerID, game.GameID)
+					if err != nil {
+						fmt.Println("Error: ", err)
+						continue
+					}
+					ucPay.CreatePayment(int64(order.OrderID), float64(order.GamePrice), "paid")
+					fmt.Println("Berhasil membayar game")
+					isPaid = true
 				case "Add To Orders Cart":
-					err := ucOrder.CreateOrder(customerID, game.GameID)
+					order, err := ucOrder.CreateOrder(customerID, game.GameID)
 					if err != nil {
 						fmt.Println("Error: ", err)
 						continue
 					}
 
-					fmt.Printf("%s berhasil dimasukkan ke orders\n", game.Title)
-					isAdded = true
+					fmt.Printf("%s berhasil dimasukkan ke orders dengan id %d\n", game.Title, order.OrderID)
+					isAddedToOrder = true
 				}
 
-				if isAdded || selectedMenuGame == "Back" {
+				if isPaid || isAddedToOrder || selectedMenuGame == "Back" {
 					break
 				}
 			}

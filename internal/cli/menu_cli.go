@@ -55,10 +55,9 @@ func (uc *AppMenu) Run() {
 
 			switch menu {
 			case "Store":
-				gameStore(customer.CustomerID, uc.GameUC, uc.CategoryUC, uc.OrderUC)
+				gameStore(customer.CustomerID, uc.GameUC, uc.CategoryUC, uc.OrderUC, uc.PaymentUC)
 			case "Orders":
 				orderGames(customer.CustomerID, uc.OrderUC)
-				fmt.Println("This is order")
 			case "Library":
 				fmt.Println("This is library")
 			case "Exit":

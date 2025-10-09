@@ -10,7 +10,7 @@ type OrderRepository struct {
 	DB *sql.DB
 }
 
-func (r *OrderRepository) Create(order *domain.Order) error {
+func (r *OrderRepository) Create(order *domain.Order) (*domain.Order, error) {
 	query := `INSERT INTO orders (CustomerID, GameID, CreatedAt)
 		VALUES ($1, $2, $3)
 		RETURNING OrderID;`
@@ -23,10 +23,10 @@ func (r *OrderRepository) Create(order *domain.Order) error {
 	).Scan(&order.OrderID)
 
 	if err != nil {
-		return err
+		return nil, err
 	}
 
-	return nil
+	return order, nil
 }
 
 func (r *OrderRepository) FindAll() ([]domain.Order, error) {
