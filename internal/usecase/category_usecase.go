@@ -10,12 +10,16 @@ type CategoryRepository interface {
 	Create(category *domain.Category) error
 	FindAll() ([]domain.Category, error)
 	FindById(id int64) (*domain.Category, error)
-	Update(Customer *domain.Category) error
+	Update(Category *domain.Category) error
 	Delete(id int64) error
 }
 
 type CategoryUsecase struct {
 	repo CategoryRepository
+}
+
+func NewCategoryUsecase(repo CategoryRepository) *CategoryUsecase {
+	return &CategoryUsecase{repo: repo}
 }
 
 func (u *CategoryUsecase) CreateCategory(name string) error {

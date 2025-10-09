@@ -23,7 +23,7 @@ func (r *CategoryRepository) Create(category *domain.Category) error {
 
 func (r *CategoryRepository) FindAll() ([]domain.Category, error) {
 	query := `SELECT CategoryID, Name
-		FROM Category;`
+		FROM Categories;`
 
 	rows, err := r.DB.Query(query)
 	if err != nil {
@@ -48,7 +48,7 @@ func (r *CategoryRepository) FindAll() ([]domain.Category, error) {
 	return categories, rows.Err()
 }
 
-func (r *CategoryRepository) FindByID(id int64) (*domain.Category, error) {
+func (r *CategoryRepository) FindById(id int64) (*domain.Category, error) {
 	query := `SELECT CategoryID, Name WHERE CategoryID = $1`
 
 	var cat domain.Category
