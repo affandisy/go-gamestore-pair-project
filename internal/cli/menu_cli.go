@@ -13,6 +13,7 @@ type AppMenu struct {
 	CategoryUC *usecase.CategoryUsecase
 	OrderUC    *usecase.Orderusecase
 	PaymentUC  *usecase.Paymentusecase
+	ReportUC   *usecase.ReportUsecase
 }
 
 func (uc *AppMenu) Run() {
@@ -40,34 +41,31 @@ func (uc *AppMenu) Run() {
 			return
 		}
 
-		for {
-			storeMenu := promptui.Select{
-				Label: "Store Menu",
-				Items: []string{
-					"Store",
-					"Orders",
-					"Library",
-					"Exit",
-				},
-			}
+		storeMenu := promptui.Select{
+			Label: "Store Menu",
+			Items: []string{
+				"Store",
+				"Orders",
+				"Library",
+				"Exit",
+			},
+		}
 
-			_, menu, _ := storeMenu.Run()
+		_, menu, _ := storeMenu.Run()
 
-			switch menu {
-			case "Store":
-				gameStore(customer.CustomerID, uc.GameUC, uc.CategoryUC, uc.OrderUC, uc.PaymentUC)
-			case "Orders":
-				orderGames(customer.CustomerID, uc.OrderUC)
-			case "Library":
-				fmt.Println("This is library")
-			case "Exit":
-				return
-			}
+		switch menu {
+		case "Store":
+			gameStore(customer.CustomerID, uc.GameUC, uc.CategoryUC, uc.OrderUC, uc.PaymentUC)
+		case "Orders":
+			orderGames(customer.CustomerID, uc.OrderUC)
+		case "Library":
+			fmt.Println("This is library")
+		case "Exit":
+			return
+		}
 
-			if menu == "Exit" {
-				return
-			}
-
+		if menu == "Exit" {
+			return
 		}
 	case "Admin":
 		adminMenu := promptui.Select{
@@ -78,9 +76,27 @@ func (uc *AppMenu) Run() {
 		_, menu, _ := adminMenu.Run()
 		switch menu {
 		case "Database":
-			adminDatabase(uc.GameUC)
+			databaseMenu := promptui.Select{
+				Label: "Database Dashboard",
+				Items: []string{"Customer", "Games", "Category", "Exit"},
+			}
+			_, menu, _ := databaseMenu.Run()
+			switch menu {
+			case "Customer":
+				customerDatabase(uc.CustomerUC)
+				return
+			case "Games":
+				gameDatabase(uc.GameUC)
+				return
+			case "Category":
+				categoryDatabase(uc.CategoryUC)
+				return
+			case "Exit":
+				return
+			}
 		case "Report":
-			// adminReport(uc.GameUC)
+			adminReport(uc.ReportUC)
+			return
 		case "Exit":
 			return
 		}
