@@ -11,7 +11,7 @@ type GameRepository struct {
 }
 
 func (r *GameRepository) Create(game *domain.Game) error {
-	query := `INSERT INTO games (CategoryID, Titles, Price, CreatedAt, UpdatedAt)
+	query := `INSERT INTO games (CategoryID, Title, Price, CreatedAt, UpdatedAt)
 		VALUES ($1, $2, $3, $4, $5)
 		RETURNING GameID;`
 
@@ -32,7 +32,7 @@ func (r *GameRepository) Create(game *domain.Game) error {
 }
 
 func (r *GameRepository) FindAll() ([]domain.Game, error) {
-	query := `SELECT GameID, CategoryID, Titles, Price, CreatedAt, UpdatedAt
+	query := `SELECT GameID, CategoryID, Title, Price, CreatedAt, UpdatedAt
 		FROM games;`
 
 	rows, err := r.DB.Query(query)
@@ -67,7 +67,7 @@ func (r *GameRepository) FindAll() ([]domain.Game, error) {
 }
 
 func (r *GameRepository) FindById(id int64) (*domain.Game, error) {
-	query := `SELECT GameID, CategoryID, Titles, Price, CreatedAt, UpdatedAt
+	query := `SELECT GameID, CategoryID, Title, Price, CreatedAt, UpdatedAt
 		FROM games
 		WHERE GameID = $1;`
 
@@ -93,7 +93,7 @@ func (r *GameRepository) FindById(id int64) (*domain.Game, error) {
 
 func (r *GameRepository) Update(game *domain.Game) error {
 	query := `UPDATE games
-		SET CategoryID = $1, Title = $2, Price = $3, UpdateAt = $4
+		SET CategoryID = $1, Title = $2, Price = $3, UpdatedAt = $4
 		WHERE GameID = $5;`
 
 	result, err := r.DB.Exec(

@@ -11,9 +11,9 @@ type CategoryRepository struct {
 }
 
 func (r *CategoryRepository) Create(category *domain.Category) error {
-	query := `INSERT INTO category (Name)
+	query := `INSERT INTO Categories (Name)
 		VALUES ($1)
-		RETURNING category_id;`
+		RETURNING CategoryID;`
 
 	return r.DB.QueryRow(
 		query,
