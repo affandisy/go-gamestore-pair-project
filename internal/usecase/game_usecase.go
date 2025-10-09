@@ -28,8 +28,8 @@ func (u *GameUsecase) CreateGame(categoryID int64, titles string, price float64)
 		CategoryID: categoryID,
 		Title:      titles,
 		Price:      price,
-		Created_at: time.Now(),
-		Updated_at: time.Now(),
+		CreatedAt:  time.Now(),
+		UpdateAt:   time.Now(),
 	}
 
 	return u.repo.Create(game)
@@ -44,7 +44,7 @@ func (u *GameUsecase) FindGameById(id int64) (*domain.Game, error) {
 }
 
 func (u *GameUsecase) UpdateGame(game *domain.Game) error {
-	game.Updated_at = time.Now()
+	game.UpdateAt = time.Now()
 	return u.repo.Update(game)
 }
 

@@ -16,6 +16,6 @@ type Game struct {
 	CategoryID int64
 	Title      string
 	Price      float64
-	Created_at time.Time
-	Updated_at time.Time
+	CreatedAt  time.Time
+	UpdateAt   time.Time
 }
