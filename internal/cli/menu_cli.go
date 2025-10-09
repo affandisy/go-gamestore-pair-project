@@ -13,6 +13,7 @@ type AppMenu struct {
 	CategoryUC *usecase.CategoryUsecase
 	OrderUC    *usecase.Orderusecase
 	PaymentUC  *usecase.Paymentusecase
+	ReportUC   *usecase.ReportUsecase
 }
 
 func (uc *AppMenu) Run() {
@@ -95,7 +96,8 @@ func (uc *AppMenu) Run() {
 				return
 			}
 		case "Report":
-			adminReport(uc.CustomerUC, uc.GameUC, uc.OrderUC, uc.PaymentUC)
+			adminReport(uc.ReportUC)
+			return
 		case "Exit":
 			return
 		}

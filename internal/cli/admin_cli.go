@@ -429,51 +429,72 @@ func categoryDatabase(uc *usecase.CategoryUsecase) {
 
 }
 
-func adminReport(customerUC *usecase.CustomerUsecase, gameUC *usecase.GameUsecase, orderUC *usecase.Orderusecase, paymentUC *usecase.Paymentusecase) {
-	fmt.Println("=== Admin Report ===")
-
-	fmt.Println("[1] History Pembelian Customer")
-	customers, _ := customerUC.FindAllCustomer()
-	orders, _ := orderUC.FindAllOrders()
-	games, _ := gameUC.FindAllGame()
-	payments, _ := paymentUC.FindAllPayments()
-
-	customerMap := map[int64]string{}
-	for _, c := range customers {
-		customerMap[c.CustomerID] = c.Name
+func adminReport(reportUC *usecase.ReportUsecase) {
+	prompt := promptui.Select{
+		Label: "Pilih Report",
+		Items: []string{
+			"Histori Pembelian Customer",
+			"Game Terlaris",
+			"Total Pendapatan",
+			"Exit",
+		},
 	}
 
-	gameMap := map[int64]string{}
-	priceMap := map[int64]float64{}
-	for _, g := range games {
-		gameMap[g.GameID] = g.Title
-		priceMap[g.GameID] = g.Price
+	_, choice, err := prompt.Run()
+	if err != nil {
+		fmt.Println("Prompt gagal:", err)
+		return
 	}
 
-	paymentMap := map[int64]float64{}
-	for _, p := range payments {
-		paymentMap[p.OrderID] = p.Amount
-	}
-
-	t := tablewriter.NewTable(os.Stdout)
-	t.Header("OrderID", "Customer", "Game", "Harga", "Status Pembayaran")
-
-	for _, o := range orders {
-		name := customerMap[o.CustomerID]
-		game := gameMap[o.GameID]
-		price := priceMap[o.GameID]
-		status := "Belum Bayar"
-		if _, ok := paymentMap[o.OrderID]; ok {
-			status = "Lunas"
+	switch choice {
+	case "Histori Pembelian Customer":
+		history, err := reportUC.GetPurchaseHistory()
+		if err != nil {
+			fmt.Println("Error", err)
+			return
 		}
-		t.Append([]string{
-			fmt.Sprintf("%d", o.OrderID),
-			name,
-			game,
-			fmt.Sprintf("Rp %.2f", price),
-			status,
-		})
-	}
 
-	t.Render()
+		table := tablewriter.NewTable(os.Stdout)
+		table.Header("OrderID", "Customer", "Email", "Game", "Harga", "Status", "Tanggal")
+
+		for _, h := range history {
+			table.Append([]string{
+				fmt.Sprintf("%d", h.OrderID),
+				h.CustomerName,
+				h.CustomerEmail,
+				h.GameTitle,
+				fmt.Sprintf("Rp %.2f", h.Price),
+				h.PaymentStatus,
+				h.OrderDate.Format("2006-01-02"),
+			})
+		}
+		table.Render()
+	case "Game Terlaris":
+		best, err := reportUC.GetBestSellingGames()
+		if err != nil {
+			fmt.Println("Error: ", err)
+			return
+		}
+
+		table := tablewriter.NewTable(os.Stdout)
+		table.Header("Game", "Total Terjual", "Pendapatan")
+
+		for _, b := range best {
+			table.Append([]string{
+				b.Title,
+				fmt.Sprintf("%d", b.TotalSold),
+				fmt.Sprintf("Rp %.2f", b.TotalRevenue),
+			})
+		}
+		table.Render()
+	case "Total Pendapatan":
+		total, err := reportUC.GetTotalRevenue()
+		if err != nil {
+			fmt.Println("Error: ", err)
+			return
+		}
+		fmt.Printf("Total Pendapatan: Rp %.2f \n", total)
+	case "Exit":
+		return
+	}
 }

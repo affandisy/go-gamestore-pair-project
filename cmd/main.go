@@ -16,12 +16,14 @@ func main() {
 	categoryRepo := &repository.CategoryRepository{DB: db}
 	orderRepo := &repository.OrderRepository{DB: db}
 	paymentRepo := &repository.PaymentRepository{DB: db}
+	reportRepo := &repository.ReportRepository{DB: db}
 
 	customerUc := usecase.NewCustomerUsecase(customerRepo)
 	gameUc := usecase.NewGameUsecase(gameRepo)
 	categoryUc := usecase.NewCategoryUsecase(categoryRepo)
 	orderUc := usecase.NewOrderUsecase(orderRepo)
 	paymentUc := usecase.NewPaymentUsecase(paymentRepo)
+	reportUC := usecase.NewReportUsecase(reportRepo)
 
 	app := cli.AppMenu{
 		CustomerUC: customerUc,
@@ -29,6 +31,7 @@ func main() {
 		CategoryUC: categoryUc,
 		OrderUC:    orderUc,
 		PaymentUC:  paymentUc,
+		ReportUC:   reportUC,
 	}
 
 	app.Run()
