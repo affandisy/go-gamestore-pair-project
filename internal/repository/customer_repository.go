@@ -13,7 +13,7 @@ type CustomerRepository struct {
 func (r *CustomerRepository) Create(customer *domain.Customer) error {
 	query := `INSERT INTO customers (name, email, password, created_at, updated_at)
 		VALUES ($1, $2, $3, $4, $5)
-		RETURNING customer_id;`
+		RETURNING customerid;`
 
 	return r.DB.QueryRow(
 		query,
@@ -26,7 +26,7 @@ func (r *CustomerRepository) Create(customer *domain.Customer) error {
 }
 
 func (r *CustomerRepository) FindAll() ([]domain.Customer, error) {
-	query := `SELECT customer_id, name, email, password, created_at, updated_at
+	query := `SELECT customerid, name, email, password, created_at, updated_at
 		FROM customers;`
 
 	rows, err := r.DB.Query(query)
@@ -57,8 +57,8 @@ func (r *CustomerRepository) FindAll() ([]domain.Customer, error) {
 }
 
 func (r *CustomerRepository) FindById(id int64) (*domain.Customer, error) {
-	query := `SELECT customer_id, name, email, password, created_at, updated_at
-		FROM customers WHERE customer_id = $1;`
+	query := `SELECT customerid, name, email, password, created_at, updated_at
+		FROM customers WHERE customerid = $1;`
 
 	var c domain.Customer
 
@@ -82,7 +82,7 @@ func (r *CustomerRepository) FindById(id int64) (*domain.Customer, error) {
 func (r *CustomerRepository) Update(customer *domain.Customer) error {
 	query := `UPDATE customers
 		SET name = $1, email = $2, password = $3, updated_at = $4
-		WHERE customer_id = $5;`
+		WHERE customerid = $5;`
 
 	res, err := r.DB.Exec(
 		query,
@@ -103,7 +103,7 @@ func (r *CustomerRepository) Update(customer *domain.Customer) error {
 }
 
 func (r *CustomerRepository) Delete(id int64) error {
-	query := `DELETE FROM customers WHERE customer_id = $1;`
+	query := `DELETE FROM customers WHERE customerid = $1;`
 
 	res, err := r.DB.Exec(query, id)
 	if err != nil {

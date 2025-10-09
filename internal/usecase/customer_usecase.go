@@ -53,3 +53,35 @@ func (u *CustomerUsecase) UpdateCustomer(customer *domain.Customer) error {
 func (u *CustomerUsecase) DeleteCustomer(id int64) error {
 	return u.repo.Delete(id)
 }
+
+func (u *CustomerUsecase) FindByEmail(email string) (*domain.Customer, error) {
+	customers, err := u.repo.FindAll()
+	if err != nil {
+		return nil, err
+	}
+
+	for _, c := range customers {
+		if c.Email == email {
+			return &c, err
+		}
+	}
+
+	return nil, nil
+}
+
+func (u *CustomerUsecase) Login(email, password string) (*domain.Customer, error) {
+	customer, err := u.FindByEmail(email)
+	if err != nil {
+		return nil, err
+	}
+
+	if customer == nil {
+		return nil, errors.New("Email belum terdaftar")
+	}
+
+	if customer.Password != password {
+		return nil, errors.New("Password salah")
+	}
+
+	return customer, nil
+}
