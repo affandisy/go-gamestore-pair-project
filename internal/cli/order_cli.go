@@ -57,7 +57,7 @@ func orderGames(customerID int64, uc *usecase.Orderusecase) {
 				fmt.Printf("%s is removed\n", selectedGame.GameTitle)
 				isRemoved = true
 			case "Back":
-				break
+				// break
 			}
 			if isBought || isRemoved || selectedMenuGameOrder == "Back" {
 				break

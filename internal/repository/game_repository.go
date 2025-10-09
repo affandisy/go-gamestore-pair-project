@@ -93,7 +93,7 @@ func (r *GameRepository) FindById(id int64) (*domain.Game, error) {
 
 func (r *GameRepository) Update(game *domain.Game) error {
 	query := `UPDATE games
-		SET CategoryID = $1, Title = $2, Price = $3, UpdateAt = $4
+		SET CategoryID = $1, Title = $2, Price = $3, UpdatedAt = $4
 		WHERE GameID = $5;`
 
 	result, err := r.DB.Exec(

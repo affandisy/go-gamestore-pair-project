@@ -11,8 +11,8 @@ import (
 	"github.com/olekukonko/tablewriter"
 )
 
-func adminDatabase(uc *usecase.GameUsecase) {
-	adminDatabaseMenu := promptui.Select{
+func gameDatabase(uc *usecase.GameUsecase) {
+	gameDatabaseMenu := promptui.Select{
 		Label: "Select Action",
 		Items: []string{
 			"Publish Game",
@@ -23,7 +23,7 @@ func adminDatabase(uc *usecase.GameUsecase) {
 		},
 	}
 
-	_, menu, _ := adminDatabaseMenu.Run()
+	_, menu, _ := gameDatabaseMenu.Run()
 
 	switch menu {
 	case "Publish Game":
@@ -31,7 +31,11 @@ func adminDatabase(uc *usecase.GameUsecase) {
 			titleInput := promptui.Prompt{
 				Label: "Title",
 			}
-			title, _ := titleInput.Run()
+			title, err := titleInput.Run()
+			if err != nil {
+				fmt.Println("Tolong masukkan title")
+				return
+			}
 
 			categoryInput := promptui.Prompt{
 				Label: "1.Action 2.Adventure 3.RPG 4.Strategy 5.Sports 6.Racing 7.Shooter 8.Puzzle  9.Horror 10.Fighting",
@@ -40,7 +44,7 @@ func adminDatabase(uc *usecase.GameUsecase) {
 			category, err := strconv.Atoi(categoryString)
 			if err != nil {
 				fmt.Println("Tolong masukkan nomor id dari kategorinya saja")
-				continue
+				return
 			}
 
 			priceInput := promptui.Prompt{
@@ -138,9 +142,108 @@ func adminDatabase(uc *usecase.GameUsecase) {
 			return
 		}
 		fmt.Println("Game Update selesai")
+	case "Delete Game":
+		games, err := uc.FindAllGame()
+		if err != nil {
+			fmt.Println("Error fetching game", err)
+			return
+		}
+
+		if len(games) == 0 {
+			fmt.Println("No games available")
+			return
+		}
+
+		gameItems := []string{}
+
+		for _, g := range games {
+			gameItems = append(gameItems, fmt.Sprintf("[%d] %s", g.GameID, g.Title))
+		}
+
+		selectPrompt := promptui.Select{
+			Label: "Select Game to Delete",
+			Items: gameItems,
+		}
+
+		idx, _, err := selectPrompt.Run()
+		if err != nil {
+			log.Println("Prompt Failed", err)
+			return
+		}
+
+		selectedGame := games[idx]
+
+		confirmPrompt := promptui.Prompt{
+			Label:     fmt.Sprintf("Are you sure delete %s? (Y/N)", selectedGame.Title),
+			IsConfirm: true,
+		}
+
+		confirm, _ := confirmPrompt.Run()
+		if confirm != "y" && confirm != "Y" {
+			fmt.Println("Dibatalkan")
+			return
+		}
+
+		if err := uc.DeleteGame(selectedGame.GameID); err != nil {
+			log.Println("Error delete game: ", err)
+			return
+		}
+
+		fmt.Printf("Game %s deleted. \n", selectedGame.Title)
 	case "Exit":
 		return
 	}
+}
+
+// CLI Category Menu
+func categoryDatabase(uc *usecase.CategoryUsecase) {
+	for {
+		categoryDatabaseMenu := promptui.Select{
+			Label: "Select Action",
+			Items: []string{
+				"Tambah Category",
+				"Semua Category",
+				"Update Category",
+				"Delete Category",
+				"Exit",
+			},
+		}
+
+		_, menu, _ := categoryDatabaseMenu.Run()
+
+		switch menu {
+		case "Tambah Category":
+			fmt.Println("=== Tambah Kategori ===")
+
+			namaPrompt := promptui.Prompt{
+				Label: "Nama Kategori",
+			}
+
+			name, err := namaPrompt.Run()
+			if err != nil || name == "" {
+				fmt.Println("Tolong masukkan nama kategori yang valid")
+				continue
+			}
+
+			if err := uc.CreateCategory(name); err != nil {
+				fmt.Println("Error", err)
+				continue
+			}
+
+			fmt.Println("Berhasil Menambahkan Kategori: ", name)
+
+		case "Semua Category":
+			fmt.Println("Testing")
+		case "Update Category":
+			fmt.Println()
+		case "Delete Category":
+			fmt.Println()
+		case "Exit":
+			return
+		}
+
+	}
+
 }
 
 func adminReport(uc *usecase.GameUsecase) {
