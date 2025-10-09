@@ -11,9 +11,9 @@ type GameRepository struct {
 }
 
 func (r *GameRepository) Create(game *domain.Game) error {
-	query := `INSERT INTO games (category_id, title, price, created_at, updated_at)
+	query := `INSERT INTO games (categoryid, titles, price, created_at, updated_at)
 		VALUES ($1, $2, $3, $4, $5)
-		RETURNING id;`
+		RETURNING gameid;`
 
 	err := r.DB.QueryRow(
 		query,
@@ -32,7 +32,7 @@ func (r *GameRepository) Create(game *domain.Game) error {
 }
 
 func (r *GameRepository) FindAll() ([]domain.Game, error) {
-	query := `SELECT id, category_id, title, price, created_at, updated_at
+	query := `SELECT gameid, categoryid, titles, price, created_at, updated_at
 		FROM games;`
 
 	rows, err := r.DB.Query(query)
