@@ -70,6 +70,7 @@ func gameStore(customerID int64, ucGame *usecase.GameUsecase, ucCat *usecase.Cat
 				menuGame := promptui.Select{
 					Label: game.Title,
 					Items: []string{
+						"Buy now",
 						"Add To Orders Cart",
 						"Back",
 					},
@@ -79,6 +80,8 @@ func gameStore(customerID int64, ucGame *usecase.GameUsecase, ucCat *usecase.Cat
 
 				var isAdded = false
 				switch selectedMenuGame {
+				case "Buy now":
+
 				case "Add To Orders Cart":
 					err := ucOrder.CreateOrder(customerID, game.GameID)
 					if err != nil {

@@ -4,20 +4,20 @@
 
 Table Customers {
   customerID INT [pk, increment]
-  name varchar(100)
-  email email
-  password password
-  created_at timestamp
-  updated_at timestamp
+  name varchar(100) not null
+  email varchar(100) not null unique
+  password varchar(255) not null
+  createdAt timestamp
+  updatedAt timestamp
 }
 
 Table Games {
   gameID INT [pk, increment]
-  categoryID int [ref: > categories.categoryID]
-  titles varchar(100)
+  categoryID int not null [ref: > categories.categoryID] not null
+  title varchar(100) not null
   price float64
-  created_at timestamp
-  updated_at timestamp
+  createdAt timestamp
+  updatedAt timestamp
 }
 
 Table Categories {
@@ -27,15 +27,15 @@ Table Categories {
 
 Table Orders {
   orderID INT [pk, increment]
-  customerID int [ref: > Customers.customerID]
-  gameID int [ref: > Games.gameID]
-  created_at timestamp
+  customerID int not null [ref: > Customers.customerID]
+  gameID int not null [ref: > Games.gameID]
+  createdAt timestamp
 }
 
 Table Payments {
   paymentID INT [pk, increment]
-  orderID int [ref: > Orders.orderID]
+  orderID int not null [ref: > Orders.orderID] 
   amount float64
   status varchar(50)
-  created_at timestamp
+  createdAt timestamp
 }

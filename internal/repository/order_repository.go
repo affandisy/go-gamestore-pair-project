@@ -11,7 +11,7 @@ type OrderRepository struct {
 }
 
 func (r *OrderRepository) Create(order *domain.Order) error {
-	query := `INSERT INTO orders (CustomerID, GameID, Created_At)
+	query := `INSERT INTO orders (CustomerID, GameID, CreatedAt)
 		VALUES ($1, $2, $3)
 		RETURNING OrderID;`
 
@@ -133,7 +133,7 @@ func (r *OrderRepository) Delete(id int64) error {
 }
 
 func (r *OrderRepository) FindAllByCustomerID(customerID int64) ([]domain.Order, error) {
-	query := `SELECT o.orderid, g.titles, g.price
+	query := `SELECT o.orderid, g.title, g.price
 	          FROM orders o
 			  JOIN games g
 			  ON o.gameid = g.gameid

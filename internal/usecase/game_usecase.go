@@ -23,10 +23,10 @@ func NewGameUsecase(repo GameRepository) *GameUsecase {
 	return &GameUsecase{repo: repo}
 }
 
-func (u *GameUsecase) CreateGame(categoryID int64, titles string, price float64) error {
+func (u *GameUsecase) CreateGame(categoryID int64, title string, price float64) error {
 	game := &domain.Game{
 		CategoryID: categoryID,
-		Title:      titles,
+		Title:      title,
 		Price:      price,
 		CreatedAt:  time.Now(),
 		UpdateAt:   time.Now(),
