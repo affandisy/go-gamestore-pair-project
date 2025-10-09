@@ -78,10 +78,13 @@ func (uc *AppMenu) Run() {
 		case "Database":
 			databaseMenu := promptui.Select{
 				Label: "Database Dashboard",
-				Items: []string{"Games", "Category", "Exit"},
+				Items: []string{"Customer", "Games", "Category", "Exit"},
 			}
 			_, menu, _ := databaseMenu.Run()
 			switch menu {
+			case "Customer":
+				customerDatabase(uc.CustomerUC)
+				return
 			case "Games":
 				gameDatabase(uc.GameUC)
 				return
