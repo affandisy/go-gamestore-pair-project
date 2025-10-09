@@ -71,7 +71,7 @@ func (uc *AppMenu) Run() {
 		case "Database":
 			adminDatabase(uc.GameUC)
 		case "Report":
-			adminReport(uc.GameUC)
+			// adminReport(uc.GameUC)
 		case "Exit":
 			return
 		}

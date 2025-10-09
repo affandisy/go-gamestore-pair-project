@@ -3,6 +3,7 @@ package cli
 import (
 	"fmt"
 	"gamestore/internal/usecase"
+	"log"
 	"os"
 	"strconv"
 
@@ -16,6 +17,8 @@ func adminDatabase(uc *usecase.GameUsecase) {
 		Items: []string{
 			"Publish Game",
 			"All Games",
+			"Update Game",
+			"Delete Game",
 			"Exit",
 		},
 	}
@@ -76,6 +79,65 @@ func adminDatabase(uc *usecase.GameUsecase) {
 		table.Header("GameID", "Category", "Title", "Price", "Created_At", "Updated_At")
 		table.Bulk(games)
 		table.Render()
+	case "Update Game":
+		games, err := uc.FindAllGame()
+		if err != nil {
+			fmt.Println("Error: ", err)
+			return
+		}
+
+		if len(games) == 0 {
+			fmt.Println("No games available")
+			return
+		}
+
+		gameItems := []string{}
+		for _, g := range games {
+			gameItems = append(gameItems, fmt.Sprintf("[%d] %s", g.GameID, g.Title))
+		}
+
+		selectPrompt := promptui.Select{
+			Label: "Select Game to Update",
+			Items: gameItems,
+		}
+
+		idx, _, err := selectPrompt.Run()
+		if err != nil {
+			log.Println("Prompt Failed", err)
+			return
+		}
+
+		selectedGame := games[idx]
+
+		titledPrompt := promptui.Prompt{
+			Label:   fmt.Sprintf("Judul Baru: (%s)", selectedGame.Title),
+			Default: selectedGame.Title,
+		}
+		newTitle, _ := titledPrompt.Run()
+
+		pricePrompt := promptui.Prompt{
+			Label:   fmt.Sprintf("Harga Baru: (%.2f)", selectedGame.Price),
+			Default: fmt.Sprintf("%.2f", selectedGame.Price),
+		}
+		newPriceStr, _ := pricePrompt.Run()
+		newPrice, _ := strconv.ParseFloat(newPriceStr, 64)
+
+		categoryPrompt := promptui.Prompt{
+			Label:   fmt.Sprintf("New Category ID (current: %d)", selectedGame.CategoryID),
+			Default: fmt.Sprintf("%d", selectedGame.CategoryID),
+		}
+		newCategoryStr, _ := categoryPrompt.Run()
+		newCategoryID, _ := strconv.ParseInt(newCategoryStr, 10, 64)
+
+		selectedGame.Title = newTitle
+		selectedGame.Price = newPrice
+		selectedGame.CategoryID = newCategoryID
+
+		if err := uc.UpdateGame(&selectedGame); err != nil {
+			fmt.Println("Error update game:", err)
+			return
+		}
+		fmt.Println("Game Update selesai")
 	case "Exit":
 		return
 	}

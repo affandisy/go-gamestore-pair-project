@@ -11,17 +11,17 @@ type GameRepository struct {
 }
 
 func (r *GameRepository) Create(game *domain.Game) error {
-	query := `INSERT INTO games (categoryid, titles, price, created_at, updated_at)
+	query := `INSERT INTO games (CategoryID, Titles, Price, CreatedAt, UpdatedAt)
 		VALUES ($1, $2, $3, $4, $5)
-		RETURNING gameid;`
+		RETURNING GameID;`
 
 	err := r.DB.QueryRow(
 		query,
 		game.CategoryID,
 		game.Title,
 		game.Price,
-		game.Created_at,
-		game.Updated_at,
+		game.CreatedAt,
+		game.UpdateAt,
 	).Scan(&game.GameID)
 
 	if err != nil {
@@ -32,7 +32,7 @@ func (r *GameRepository) Create(game *domain.Game) error {
 }
 
 func (r *GameRepository) FindAll() ([]domain.Game, error) {
-	query := `SELECT gameid, categoryid, titles, price, created_at, updated_at
+	query := `SELECT GameID, CategoryID, Titles, Price, CreatedAt, UpdatedAt
 		FROM games;`
 
 	rows, err := r.DB.Query(query)
@@ -50,8 +50,8 @@ func (r *GameRepository) FindAll() ([]domain.Game, error) {
 			&g.CategoryID,
 			&g.Title,
 			&g.Price,
-			&g.Created_at,
-			&g.Updated_at,
+			&g.CreatedAt,
+			&g.UpdateAt,
 		)
 		if err != nil {
 			return nil, err
@@ -67,9 +67,9 @@ func (r *GameRepository) FindAll() ([]domain.Game, error) {
 }
 
 func (r *GameRepository) FindById(id int64) (*domain.Game, error) {
-	query := `SELECT gameid, categoryid, titles, price, created_at, updated_at
+	query := `SELECT GameID, CategoryID, Titles, Price, CreatedAt, UpdatedAt
 		FROM games
-		WHERE gameid = $1;`
+		WHERE GameID = $1;`
 
 	var g domain.Game
 	err := r.DB.QueryRow(query, id).Scan(
@@ -77,8 +77,8 @@ func (r *GameRepository) FindById(id int64) (*domain.Game, error) {
 		&g.CategoryID,
 		&g.Title,
 		&g.Price,
-		&g.Created_at,
-		&g.Updated_at,
+		&g.CreatedAt,
+		&g.UpdateAt,
 	)
 
 	if err != nil {
@@ -93,15 +93,15 @@ func (r *GameRepository) FindById(id int64) (*domain.Game, error) {
 
 func (r *GameRepository) Update(game *domain.Game) error {
 	query := `UPDATE games
-		SET category_id = $1, title = $2, price = $3, updated_at = $4
-		WHERE id = $5;`
+		SET CategoryID = $1, Title = $2, Price = $3, UpdateAt = $4
+		WHERE GameID = $5;`
 
 	result, err := r.DB.Exec(
 		query,
 		game.CategoryID,
 		game.Title,
 		game.Price,
-		game.Updated_at,
+		game.UpdateAt,
 		game.GameID,
 	)
 
@@ -121,7 +121,7 @@ func (r *GameRepository) Update(game *domain.Game) error {
 }
 
 func (r *GameRepository) Delete(id int64) error {
-	query := `DELETE FROM games WHERE id = $1;`
+	query := `DELETE FROM games WHERE GameID = $1;`
 
 	result, err := r.DB.Exec(query, id)
 	if err != nil {
@@ -141,8 +141,8 @@ func (r *GameRepository) Delete(id int64) error {
 
 func (r *GameRepository) FindByCategoryID(categoryID int64) ([]domain.Game, error) {
 	query := `SELECT *
-	          FROM games
-	          WHERE categoryid = $1;`
+	        FROM games
+	        WHERE CategoryID = $1;`
 
 	rows, err := r.DB.Query(query, categoryID)
 	if err != nil {
@@ -158,8 +158,8 @@ func (r *GameRepository) FindByCategoryID(categoryID int64) ([]domain.Game, erro
 			&g.CategoryID,
 			&g.Title,
 			&g.Price,
-			&g.Created_at,
-			&g.Updated_at,
+			&g.CreatedAt,
+			&g.UpdateAt,
 		)
 		if err != nil {
 			return nil, err
