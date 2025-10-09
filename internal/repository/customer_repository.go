@@ -56,7 +56,7 @@ func (r *CustomerRepository) FindAll() ([]domain.Customer, error) {
 	return customers, rows.Err()
 }
 
-func (r *CustomerRepository) FindByID(id int64) (*domain.Customer, error) {
+func (r *CustomerRepository) FindById(id int64) (*domain.Customer, error) {
 	query := `SELECT customer_id, name, email, password, created_at, updated_at
 		FROM customers WHERE customer_id = $1;`
 
