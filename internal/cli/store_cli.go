@@ -67,12 +67,13 @@ func gameStore(customerID int64, ucGame *usecase.GameUsecase, ucCat *usecase.Cat
 					fmt.Println("Error", err)
 				}
 
-				var items = []string{}
-				items = append(items, "Back")
-
 				menuGame := promptui.Select{
 					Label: game.Title,
-					Items: items,
+					Items: []string{
+						"Buy now",
+						"Add to orders cart",
+						"Back",
+					},
 				}
 
 				isPaid := false
