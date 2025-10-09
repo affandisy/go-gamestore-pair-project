@@ -15,26 +15,30 @@ type AppMenu struct {
 }
 
 func (uc *AppMenu) Run() {
-	storeMenu := promptui.Select{
-		Label: "Store Menu",
-		Items: []string{
-			"Store",
-			"Order",
-			"Library",
-			"Exit",
-		},
-	}
+	customer := AuthMenu(uc.CustomerUC)
 
-	_, menu, _ := storeMenu.Run()
+	if customer != nil {
+		storeMenu := promptui.Select{
+			Label: "Store Menu",
+			Items: []string{
+				"Store",
+				"Order",
+				"Library",
+				"Exit",
+			},
+		}
 
-	switch menu {
-	case "Store":
-		fmt.Println("This is store")
-	case "Order":
-		fmt.Println("This is order")
-	case "Library":
-		fmt.Println("This is library")
-	case "Exit":
-		break
+		_, menu, _ := storeMenu.Run()
+
+		switch menu {
+		case "Store":
+			fmt.Println("This is store")
+		case "Order":
+			fmt.Println("This is order")
+		case "Library":
+			fmt.Println("This is library")
+		case "Exit":
+			break
+		}
 	}
 }
