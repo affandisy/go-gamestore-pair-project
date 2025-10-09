@@ -10,12 +10,8 @@ type OrderRepository struct {
 	DB *sql.DB
 }
 
-func NewOrderRepository(db *sql.DB) *OrderRepository {
-	return &OrderRepository{DB: db}
-}
-
 func (r *OrderRepository) Create(order *domain.Order) error {
-	query := `INSERT INTO orders (CustomerID, GameID, CreatedAt)
+	query := `INSERT INTO orders (CustomerID, GameID, Created_At)
 		VALUES ($1, $2, $3)
 		RETURNING OrderID;`
 
@@ -134,4 +130,35 @@ func (r *OrderRepository) Delete(id int64) error {
 	}
 
 	return nil
+}
+
+func (r *OrderRepository) FindAllByCustomerID(customerID int64) ([]domain.Order, error) {
+	query := `SELECT o.orderid, g.titles, g.price
+	          FROM orders o
+			  JOIN games g
+			  ON o.gameid = g.gameid
+	          WHERE o.customerid = $1;`
+
+	rows, err := r.DB.Query(query, customerID)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+
+	var orders []domain.Order
+	for rows.Next() {
+		var g domain.Order
+		err := rows.Scan(
+			&g.OrderID,
+			&g.GameTitle,
+			&g.GamePrice,
+		)
+		if err != nil {
+			return nil, err
+		}
+
+		orders = append(orders, g)
+	}
+
+	return orders, nil
 }

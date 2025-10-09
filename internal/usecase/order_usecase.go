@@ -10,6 +10,7 @@ type OrderRepository interface {
 	Create(order *domain.Order) error
 	FindAll() ([]domain.Order, error)
 	FindById(id int64) (*domain.Order, error)
+	FindAllByCustomerID(customerID int64) ([]domain.Order, error)
 	Update(order *domain.Order) error
 	Delete(id int64) error
 }
@@ -49,4 +50,8 @@ func (u *Orderusecase) UpdateOrder(order *domain.Order) error {
 
 func (u *Orderusecase) DeleteOrder(id int64) error {
 	return u.repo.Delete(id)
+}
+
+func (u *Orderusecase) FindAllOrderByCustomerID(customerID int64) ([]domain.Order, error) {
+	return u.repo.FindAllByCustomerID(customerID)
 }

@@ -36,7 +36,7 @@ func (uc *AppMenu) Run() {
 				Label: "Store Menu",
 				Items: []string{
 					"Store",
-					"Order",
+					"Orders",
 					"Library",
 					"Exit",
 				},
@@ -46,8 +46,9 @@ func (uc *AppMenu) Run() {
 
 			switch menu {
 			case "Store":
-				gameStore(uc.GameUC, uc.CategoryUC)
-			case "Order":
+				gameStore(customer.CustomerID, uc.GameUC, uc.CategoryUC, uc.OrderUC)
+			case "Orders":
+				orderGames(customer.CustomerID, uc.OrderUC)
 				fmt.Println("This is order")
 			case "Library":
 				fmt.Println("This is library")
