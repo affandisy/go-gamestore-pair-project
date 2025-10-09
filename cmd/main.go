@@ -12,10 +12,17 @@ func main() {
 	defer db.Close()
 
 	customerRepo := &repository.CustomerRepository{DB: db}
+	gameRepo := &repository.GameRepository{DB: db}
+	categoryRepo := &repository.CategoryRepository{DB: db}
+
 	customerUc := usecase.NewCustomerUsecase(customerRepo)
+	gameUc := usecase.NewGameUsecase(gameRepo)
+	categoryUc := usecase.NewCategoryUsecase(categoryRepo)
 
 	app := cli.AppMenu{
 		CustomerUC: customerUc,
+		GameUC:     gameUc,
+		CategoryUC: categoryUc,
 	}
 
 	app.Run()

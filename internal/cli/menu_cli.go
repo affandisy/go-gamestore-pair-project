@@ -10,14 +10,17 @@ import (
 type AppMenu struct {
 	CustomerUC *usecase.CustomerUsecase
 	GameUC     *usecase.GameUsecase
+	CategoryUC *usecase.CategoryUsecase
 	OrderUC    *usecase.Orderusecase
 	PaymentUC  *usecase.Paymentusecase
 }
 
 func (uc *AppMenu) Run() {
 	customer := AuthMenu(uc.CustomerUC)
-
-	if customer != nil {
+	if customer == nil {
+		return
+	}
+	for {
 		storeMenu := promptui.Select{
 			Label: "Store Menu",
 			Items: []string{
@@ -32,13 +35,18 @@ func (uc *AppMenu) Run() {
 
 		switch menu {
 		case "Store":
-			fmt.Println("This is store")
+			gameStore(uc.GameUC, uc.CategoryUC)
 		case "Order":
 			fmt.Println("This is order")
 		case "Library":
 			fmt.Println("This is library")
 		case "Exit":
-			break
+			return
 		}
+
+		if menu == "Exit" {
+			return
+		}
+
 	}
 }

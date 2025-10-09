@@ -9,9 +9,10 @@ import (
 type GameRepository interface {
 	Create(game *domain.Game) error
 	FindAll() ([]domain.Game, error)
-	FindById(id int) (*domain.Game, error)
+	FindById(id int64) (*domain.Game, error)
+	FindByCategoryID(categoryID int64) ([]domain.Game, error)
 	Update(game *domain.Game) error
-	Delete(id int) error
+	Delete(id int64) error
 }
 
 type GameUsecase struct {
@@ -38,7 +39,7 @@ func (u *GameUsecase) FindAllGame() ([]domain.Game, error) {
 	return u.repo.FindAll()
 }
 
-func (u *GameUsecase) FindGameById(id int) (*domain.Game, error) {
+func (u *GameUsecase) FindGameById(id int64) (*domain.Game, error) {
 	return u.repo.FindById(id)
 }
 
@@ -47,6 +48,10 @@ func (u *GameUsecase) UpdateGame(game *domain.Game) error {
 	return u.repo.Update(game)
 }
 
-func (u *GameUsecase) DeleteGame(id int) error {
+func (u *GameUsecase) DeleteGame(id int64) error {
 	return u.repo.Delete(id)
+}
+
+func (u *GameUsecase) FindGameByCategoryID(categoryID int64) ([]domain.Game, error) {
+	return u.repo.FindByCategoryID(categoryID)
 }
