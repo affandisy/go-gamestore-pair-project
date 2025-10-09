@@ -16,37 +16,68 @@ type AppMenu struct {
 }
 
 func (uc *AppMenu) Run() {
-	customer := AuthMenu(uc.CustomerUC)
-	if customer == nil {
-		return
+
+	rolesMenu := promptui.Select{
+		Label: "Role",
+		Items: []string{"Customer", "Admin"},
 	}
-	for {
-		storeMenu := promptui.Select{
-			Label: "Store Menu",
-			Items: []string{
-				"Store",
-				"Order",
-				"Library",
-				"Exit",
-			},
+
+	_, role, _ := rolesMenu.Run()
+
+	switch role {
+	case "Customer":
+		customer := AuthMenu(uc.CustomerUC)
+		if customer == nil {
+			return
 		}
 
-		_, menu, _ := storeMenu.Run()
+		for {
+			storeMenu := promptui.Select{
+				Label: "Store Menu",
+				Items: []string{
+					"Store",
+					"Order",
+					"Library",
+					"Exit",
+				},
+			}
 
+			_, menu, _ := storeMenu.Run()
+
+			switch menu {
+			case "Store":
+				gameStore(uc.GameUC, uc.CategoryUC)
+			case "Order":
+				fmt.Println("This is order")
+			case "Library":
+				fmt.Println("This is library")
+			case "Exit":
+				return
+			}
+
+			if menu == "Exit" {
+				return
+			}
+
+		}
+	case "Admin":
+		adminMenu := promptui.Select{
+			Label: "Admin Dashboard",
+			Items: []string{"Database", "Report", "Exit"},
+		}
+
+		_, menu, _ := adminMenu.Run()
 		switch menu {
-		case "Store":
-			gameStore(uc.GameUC, uc.CategoryUC)
-		case "Order":
-			fmt.Println("This is order")
-		case "Library":
-			fmt.Println("This is library")
+		case "Database":
+			adminDatabase(uc.GameUC)
+		case "Report":
+			adminReport(uc.GameUC)
 		case "Exit":
 			return
 		}
 
-		if menu == "Exit" {
-			return
-		}
-
+	case "Exit":
+		return
 	}
+
 }
