@@ -67,7 +67,7 @@ func (r *CategoryRepository) FindById(id int64) (*domain.Category, error) {
 }
 
 func (r *CategoryRepository) Update(category *domain.Category) error {
-	query := `UPDATE category
+	query := `UPDATE Categories
 		SET name = $1 WHERE CategoryID = $2;`
 
 	res, err := r.DB.Exec(
@@ -86,7 +86,7 @@ func (r *CategoryRepository) Update(category *domain.Category) error {
 }
 
 func (r *CategoryRepository) Delete(id int64) error {
-	query := `DELETE FROM category WHERE CategoryID = $1;`
+	query := `DELETE FROM Categories WHERE CategoryID = $1;`
 
 	res, err := r.DB.Exec(query, id)
 	if err != nil {

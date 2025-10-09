@@ -11,6 +11,93 @@ import (
 	"github.com/olekukonko/tablewriter"
 )
 
+func customerDatabase(uc *usecase.CustomerUsecase) {
+	customerDatabaseMenu := promptui.Select{
+		Label: "Select Action",
+		Items: []string{
+			"All Customers",
+			"Delete Customer",
+			"Exit",
+		},
+	}
+
+	_, menu, _ := customerDatabaseMenu.Run()
+
+	switch menu {
+	case "All Customers":
+		customers, err := uc.FindAllCustomer()
+		if err != nil {
+			fmt.Println("Error: ", err)
+			return
+		}
+
+		table := tablewriter.NewTable(os.Stdout)
+		table.Header("CustomerID", "Name", "Email", "Password", "CreatedAt", "UpdatedAt")
+
+		for _, c := range customers {
+			table.Append([]string{
+				fmt.Sprintf("%d", c.CustomerID),
+				c.Name,
+				c.Email,
+				"********",
+				c.CreatedAt.Format("2006-01-02 15:04:05"),
+				c.UpdatedAt.Format("2006-01-02 15:04:05"),
+			})
+		}
+		table.Render()
+	case "Delete Customer":
+		customers, err := uc.FindAllCustomer()
+		if err != nil {
+			fmt.Println("Error: gagal mengambil game", err)
+			return
+		}
+
+		if len(customers) == 0 {
+			fmt.Println("Tidak ada game yang tersedia")
+			return
+		}
+
+		customerItems := []string{}
+
+		for _, c := range customers {
+			customerItems = append(customerItems, fmt.Sprintf("[%d] %s", c.CustomerID, c.Name))
+		}
+
+		selectPrompt := promptui.Select{
+			Label: "Pilih customer untuk dihapus",
+			Items: customerItems,
+		}
+
+		idx, _, err := selectPrompt.Run()
+		if err != nil {
+			log.Println("Prompt gagal", err)
+			return
+		}
+
+		selectedCustomers := customers[idx]
+
+		confirmPrompt := promptui.Prompt{
+			Label:     fmt.Sprintf("Apakah anda yakin ingin menghapus Customer %s ini? (Y, N)", selectedCustomers.Name),
+			IsConfirm: true,
+		}
+
+		confirm, _ := confirmPrompt.Run()
+		if confirm != "y" && confirm != "Y" {
+			fmt.Println("Dibatalkan")
+			return
+		}
+
+		if err := uc.DeleteCustomer(selectedCustomers.CustomerID); err != nil {
+			log.Println("Error delete customer: ", err)
+			return
+		}
+
+		fmt.Printf("Customer %s dihapus. \n", selectedCustomers.Name)
+	case "Exit":
+		return
+	}
+}
+
 func gameDatabase(uc *usecase.GameUsecase) {
 	gameDatabaseMenu := promptui.Select{
 		Label: "Select Action",
@@ -91,7 +178,7 @@ func gameDatabase(uc *usecase.GameUsecase) {
 		}
 
 		if len(games) == 0 {
-			fmt.Println("No games available")
+			fmt.Println("Tidak ada game yang tersedia")
 			return
 		}
 
@@ -101,13 +188,13 @@ func gameDatabase(uc *usecase.GameUsecase) {
 		}
 
 		selectPrompt := promptui.Select{
-			Label: "Select Game to Update",
+			Label: "Pilih game untuk diupdate",
 			Items: gameItems,
 		}
 
 		idx, _, err := selectPrompt.Run()
 		if err != nil {
-			log.Println("Prompt Failed", err)
+			log.Println("Prompt Gagal", err)
 			return
 		}
 
@@ -127,7 +214,7 @@ func gameDatabase(uc *usecase.GameUsecase) {
 		newPrice, _ := strconv.ParseFloat(newPriceStr, 64)
 
 		categoryPrompt := promptui.Prompt{
-			Label:   fmt.Sprintf("New Category ID (current: %d)", selectedGame.CategoryID),
+			Label:   fmt.Sprintf("ID Kategori Baru (current: %d)", selectedGame.CategoryID),
 			Default: fmt.Sprintf("%d", selectedGame.CategoryID),
 		}
 		newCategoryStr, _ := categoryPrompt.Run()
@@ -145,12 +232,12 @@ func gameDatabase(uc *usecase.GameUsecase) {
 	case "Delete Game":
 		games, err := uc.FindAllGame()
 		if err != nil {
-			fmt.Println("Error fetching game", err)
+			fmt.Println("Error: gagal mengambil game", err)
 			return
 		}
 
 		if len(games) == 0 {
-			fmt.Println("No games available")
+			fmt.Println("Tidak ada game yang tersedia")
 			return
 		}
 
@@ -161,20 +248,20 @@ func gameDatabase(uc *usecase.GameUsecase) {
 		}
 
 		selectPrompt := promptui.Select{
-			Label: "Select Game to Delete",
+			Label: "Pilih game untuk dihapus",
 			Items: gameItems,
 		}
 
 		idx, _, err := selectPrompt.Run()
 		if err != nil {
-			log.Println("Prompt Failed", err)
+			log.Println("Prompt gagal", err)
 			return
 		}
 
 		selectedGame := games[idx]
 
 		confirmPrompt := promptui.Prompt{
-			Label:     fmt.Sprintf("Are you sure delete %s? (Y/N)", selectedGame.Title),
+			Label:     fmt.Sprintf("Apakah anda yakin ingin menghapus game %s ini? (Y, N)", selectedGame.Title),
 			IsConfirm: true,
 		}
 
@@ -189,7 +276,7 @@ func gameDatabase(uc *usecase.GameUsecase) {
 			return
 		}
 
-		fmt.Printf("Game %s deleted. \n", selectedGame.Title)
+		fmt.Printf("Game %s dihapus. \n", selectedGame.Title)
 	case "Exit":
 		return
 	}
@@ -233,11 +320,107 @@ func categoryDatabase(uc *usecase.CategoryUsecase) {
 			fmt.Println("Berhasil Menambahkan Kategori: ", name)
 
 		case "Semua Category":
-			fmt.Println("Testing")
+			categories, err := uc.FindAllCategories()
+			if err != nil {
+				fmt.Println("Error: ", err)
+				return
+			}
+
+			table := tablewriter.NewTable(os.Stdout)
+			table.Header("CategoryID", "Name")
+			table.Bulk(categories)
+			table.Render()
 		case "Update Category":
-			fmt.Println()
+			categories, err := uc.FindAllCategories()
+			if err != nil {
+				fmt.Println("Error: ", err)
+				return
+			}
+
+			if len(categories) == 0 {
+				fmt.Println("Tidak ada category yang tersedia")
+				return
+			}
+
+			categoryItems := []string{}
+			for _, c := range categories {
+				categoryItems = append(categoryItems, fmt.Sprintf("[%d] %s", c.CategoryID, c.Name))
+			}
+
+			selectPrompt := promptui.Select{
+				Label: "Pilih kategori untuk diupdate",
+				Items: categoryItems,
+			}
+
+			idx, _, err := selectPrompt.Run()
+			if err != nil {
+				log.Println("Prompt gagal", err)
+				return
+			}
+
+			selectedCategory := categories[idx]
+
+			namePrompt := promptui.Prompt{
+				Label:   fmt.Sprintf("Nama kategori Baru: (%s)", selectedCategory.Name),
+				Default: selectedCategory.Name,
+			}
+			newName, _ := namePrompt.Run()
+
+			selectedCategory.Name = newName
+
+			if err := uc.UpdateCategory(&selectedCategory); err != nil {
+				fmt.Println("Error update game:", err)
+				return
+			}
+			fmt.Println("Category Update selesai")
 		case "Delete Category":
-			fmt.Println()
+			categories, err := uc.FindAllCategories()
+			if err != nil {
+				fmt.Println("Error: Gagal mengambil data", err)
+				return
+			}
+
+			if len(categories) == 0 {
+				fmt.Println("Tidak ada category yang tersedia")
+				return
+			}
+
+			categoryItems := []string{}
+
+			for _, c := range categories {
+				categoryItems = append(categoryItems, fmt.Sprintf("[%d] %s", c.CategoryID, c.Name))
+			}
+
+			selectPrompt := promptui.Select{
+				Label: "Pilih category untuk dihapus",
+				Items: categoryItems,
+			}
+
+			idx, _, err := selectPrompt.Run()
+			if err != nil {
+				log.Println("Prompt gagal", err)
+				return
+			}
+
+			selectedCategory := categories[idx]
+
+			confirmPrompt := promptui.Prompt{
+				Label:     fmt.Sprintf("Apakah anda ingin menghapus kategori: %s ini? (Y/N)", selectedCategory.Name),
+				IsConfirm: true,
+			}
+
+			confirm, _ := confirmPrompt.Run()
+			if confirm != "y" && confirm != "Y" {
+				fmt.Println("Dibatalkan")
+				return
+			}
+
+			if err := uc.DeleteCategory(selectedCategory.CategoryID); err != nil {
+				log.Println("Error delete game: ", err)
+				return
+			}
+
+			fmt.Printf("Kategori %s telah dihapus. \n", selectedCategory.Name)
 		case "Exit":
 			return
 		}
