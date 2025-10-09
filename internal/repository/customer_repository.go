@@ -11,7 +11,7 @@ type CustomerRepository struct {
 }
 
 func (r *CustomerRepository) Create(customer *domain.Customer) error {
-	query := `INSERT INTO customers (name, email, password, created_at, updated_at)
+	query := `INSERT INTO customers (name, email, password, createdat, updatedat)
 		VALUES ($1, $2, $3, $4, $5)
 		RETURNING customerid;`
 
@@ -26,7 +26,7 @@ func (r *CustomerRepository) Create(customer *domain.Customer) error {
 }
 
 func (r *CustomerRepository) FindAll() ([]domain.Customer, error) {
-	query := `SELECT customerid, name, email, password, created_at, updated_at
+	query := `SELECT customerid, name, email, password, createdat, updatedat
 		FROM customers;`
 
 	rows, err := r.DB.Query(query)
@@ -57,7 +57,7 @@ func (r *CustomerRepository) FindAll() ([]domain.Customer, error) {
 }
 
 func (r *CustomerRepository) FindById(id int64) (*domain.Customer, error) {
-	query := `SELECT customerid, name, email, password, created_at, updated_at
+	query := `SELECT customerid, name, email, password, createdat, updatedat
 		FROM customers WHERE customerid = $1;`
 
 	var c domain.Customer

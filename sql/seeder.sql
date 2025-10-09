@@ -12,7 +12,7 @@ INSERT INTO categories (name) VALUES
 ;
 
 
-INSERT INTO Games (categoryID, titles, price) VALUES
+INSERT INTO Games (categoryID, title, price) VALUES
 -- Action
 (1, 'God of War', 799000),
 (1, 'Devil May Cry 5', 599000),
