@@ -95,7 +95,7 @@ func (uc *AppMenu) Run() {
 				return
 			}
 		case "Report":
-			// adminReport(uc.GameUC)
+			adminReport(uc.CustomerUC, uc.GameUC, uc.OrderUC, uc.PaymentUC)
 		case "Exit":
 			return
 		}
