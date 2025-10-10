@@ -15,13 +15,13 @@ func NewPaymentRepository(db *sql.DB) *PaymentRepository {
 }
 
 func (r *PaymentRepository) Create(payment *domain.Payment) error {
-	query := `INSERT INTO payments (OrderID, Amount, Status, CreatedAt)
+	query := `INSERT INTO payments (CustomerID, Amount, Status, CreatedAt)
 		VALUES ($1, $2, $3, $4)
 		RETURNING PaymentID;`
 
 	err := r.DB.QueryRow(
 		query,
-		payment.OrderID,
+		payment.CustomerID,
 		payment.Amount,
 		payment.Status,
 		payment.CreatedAt,
@@ -35,7 +35,7 @@ func (r *PaymentRepository) Create(payment *domain.Payment) error {
 }
 
 func (r *PaymentRepository) FindAll() ([]domain.Payment, error) {
-	query := `SELECT PaymentID, OrderID, Amount, Status, CreatedAt
+	query := `SELECT PaymentID, CustomerID, Amount, Status, CreatedAt
 		FROM payments;`
 
 	rows, err := r.DB.Query(query)
@@ -51,7 +51,7 @@ func (r *PaymentRepository) FindAll() ([]domain.Payment, error) {
 		var p domain.Payment
 		err := rows.Scan(
 			&p.PaymentID,
-			&p.OrderID,
+			&p.CustomerID,
 			&p.Amount,
 			&p.Status,
 			&p.CreatedAt,
@@ -70,13 +70,13 @@ func (r *PaymentRepository) FindAll() ([]domain.Payment, error) {
 }
 
 func (r *PaymentRepository) FindById(id int64) (*domain.Payment, error) {
-	query := `SELECT PaymentID, OrderID, Amount, Status, CreatedAt
+	query := `SELECT PaymentID, CustomerID, Amount, Status, CreatedAt
 		FROM payments WHERE PaymentID = $1;`
 
 	var p domain.Payment
 	err := r.DB.QueryRow(query, id).Scan(
 		&p.PaymentID,
-		&p.OrderID,
+		&p.CustomerID,
 		&p.Amount,
 		&p.Status,
 		&p.CreatedAt,
@@ -94,12 +94,12 @@ func (r *PaymentRepository) FindById(id int64) (*domain.Payment, error) {
 
 func (r *PaymentRepository) Update(payment *domain.Payment) error {
 	query := `UPDATE payments
-		SET OrderID = $1, Amount = $2, Status = $3
+		SET CustomerID = $1, Amount = $2, Status = $3
 		WHERE PaymentID = $4;`
 
 	result, err := r.DB.Exec(
 		query,
-		payment.OrderID,
+		payment.CustomerID,
 		payment.Amount,
 		payment.Status,
 		payment.PaymentID,
@@ -137,4 +137,49 @@ func (r *PaymentRepository) Delete(id int64) error {
 	}
 
 	return nil
+}
+
+func (r *PaymentRepository) PayAllGames(payment *domain.Payment) error {
+	query := `
+		SELECT SUM(g.price)
+		FROM orders o
+		JOIN games g
+		ON o.gameid = g.gameid
+		JOIN customers c
+		ON o.customerid = c.customerid
+		WHERE o.status = 'UNPAID' AND c.customerid = $1
+		;
+	`
+
+	rows, err := r.DB.Query(query, payment.CustomerID)
+	if err != nil {
+		return err
+	}
+
+	for rows.Next() {
+		var p domain.Payment
+		err := rows.Scan(&p.Amount)
+		if err != nil {
+			return err
+		}
+	}
+
+	query2 := `INSERT INTO payments (CustomerID, Amount, Status, CreatedAt)
+		VALUES ($1, $2, $3, $4)
+		RETURNING PaymentID;`
+
+	err2 := r.DB.QueryRow(
+		query2,
+		payment.CustomerID,
+		payment.Amount,
+		payment.Status,
+		payment.CreatedAt,
+	).Scan(&payment.PaymentID)
+
+	if err2 != nil {
+		return err2
+	}
+
+	return nil
+
 }

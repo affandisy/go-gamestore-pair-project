@@ -13,6 +13,7 @@ type PaymentRepository interface {
 	FindById(id int64) (*domain.Payment, error)
 	Update(payment *domain.Payment) error
 	Delete(id int64) error
+	PayAllGames(payment *domain.Payment) error
 }
 
 type Paymentusecase struct {
@@ -23,12 +24,12 @@ func NewPaymentUsecase(repo PaymentRepository) *Paymentusecase {
 	return &Paymentusecase{repo: repo}
 }
 
-func (u *Paymentusecase) CreatePayment(orderID int64, amount float64, status string) error {
+func (u *Paymentusecase) CreatePayment(customerID int64, amount float64, status string) error {
 	payment := &domain.Payment{
-		OrderID:   orderID,
-		Amount:    amount,
-		Status:    status,
-		CreatedAt: time.Now(),
+		CustomerID: customerID,
+		Amount:     amount,
+		Status:     status,
+		CreatedAt:  time.Now(),
 	}
 
 	return u.repo.Create(payment)
@@ -52,4 +53,13 @@ func (u *Paymentusecase) UpdatePayment(payment *domain.Payment) error {
 
 func (u *Paymentusecase) DeletePayment(id int64) error {
 	return u.repo.Delete(id)
+}
+
+func (u *Paymentusecase) PayAllUserGames(customerID int64, status string) error {
+	payment := &domain.Payment{
+		CustomerID: customerID,
+		Status:     status,
+		CreatedAt:  time.Now(),
+	}
+	return u.repo.PayAllGames(payment)
 }

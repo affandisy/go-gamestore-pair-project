@@ -7,9 +7,9 @@ import (
 	"github.com/manifoldco/promptui"
 )
 
-func orderGames(customerID int64, uc *usecase.Orderusecase) {
+func orderGames(customerID int64, ucGame *usecase.GameUsecase, ucOrder *usecase.Orderusecase, ucPay *usecase.Paymentusecase) {
 	for {
-		orders, err := uc.FindAllOrderByCustomerID(customerID)
+		orders, err := ucOrder.FindAllOrderByCustomerID(customerID)
 		if err != nil {
 			fmt.Println("Error: ", err)
 		}
@@ -17,21 +17,45 @@ func orderGames(customerID int64, uc *usecase.Orderusecase) {
 		var orderName = []string{}
 		for _, order := range orders {
 			orderName = append(orderName, fmt.Sprintf("%s - %.2f", order.GameTitle, order.GamePrice))
+
+		}
+		if len(orderName) > 0 {
+			orderName = append(orderName, "Bayar semua")
 		}
 		orderName = append(orderName, "Back")
 		orderMenu := promptui.Select{
 			Label: "Orders",
 			Items: orderName,
 		}
-
 		idx, selectedOrderMenu, _ := orderMenu.Run()
 		if selectedOrderMenu == "Back" {
 			break
 		}
+		if selectedOrderMenu == "Bayar semua" {
+			err := ucPay.PayAllUserGames(customerID, "PAID")
+			if err != nil {
+				fmt.Println("Error: ", err)
+				continue
+			}
 
+			fmt.Println("Berhasil membayar semua game!")
+			for _, order := range orders {
+				err := ucOrder.UpdateOrderStatus(order.OrderID, "PAID")
+				if err != nil {
+					fmt.Println("Error: ", err)
+					continue
+				}
+			}
+			continue
+		}
 		selectedGame := orders[idx]
 
 		for {
+			game, err := ucGame.FindGameById(selectedGame.GameID)
+			if err != nil {
+				fmt.Println("Error: ", err)
+				continue
+			}
 			orderID := selectedGame.OrderID
 			price := selectedGame.GamePrice
 
@@ -47,9 +71,20 @@ func orderGames(customerID int64, uc *usecase.Orderusecase) {
 			switch selectedMenuGameOrder {
 			case "Buy":
 				fmt.Println("Buy", orderID, price)
+				err := payOneGame(customerID, ucOrder, ucPay, game)
+				if err != nil {
+					fmt.Println("Error: ", err)
+					continue
+				}
+				err2 := ucOrder.UpdateOrderStatus(orderID, "PAID")
+				if err2 != nil {
+					fmt.Println("Error: ", err2)
+					continue
+				}
+
 				isBought = true
 			case "Remove":
-				err := uc.DeleteOrder(orderID)
+				err := ucOrder.DeleteOrder(orderID)
 				if err != nil {
 					fmt.Println("Error: ", err)
 					continue
