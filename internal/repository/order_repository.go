@@ -190,3 +190,25 @@ func (r *OrderRepository) UpdateUserOrderStatus(orderID int64, status string) er
 
 	return nil
 }
+
+func (r *OrderRepository) FindOrderByGameId(customerID, gameID int64) (*domain.Order, error) {
+	query := `SELECT OrderID, CustomerID, GameID, CreatedAt
+		FROM orders WHERE CustomerID = $1 AND GameID = $2;`
+
+	var o domain.Order
+	err := r.DB.QueryRow(query, customerID, gameID).Scan(
+		&o.OrderID,
+		&o.CustomerID,
+		&o.GameID,
+		&o.CreatedAt,
+	)
+
+	if err != nil {
+		if errors.Is(err, sql.ErrNoRows) {
+			return nil, nil
+		}
+		return nil, err
+	}
+
+	return &o, nil
+}

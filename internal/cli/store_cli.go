@@ -75,13 +75,30 @@ func gameStore(customerID int64, ucGame *usecase.GameUsecase, ucCat *usecase.Cat
 					fmt.Println("Error", err)
 				}
 
+				inLibrary, err := ucLib.FindInLibraryByGameID(customerID, selectedGame.GameID)
+				if err != nil {
+					fmt.Println("Error checking library:", err)
+					continue
+				}
+				inOrder, err := ucOrder.FindOrderByGameID(customerID, selectedGame.GameID)
+				if err != nil {
+					fmt.Println("Error checking order:", err)
+					continue
+				}
+
+				items := []string{}
+				if inLibrary == nil {
+					items = append(items, "Buy now")
+				}
+
+				if inOrder == nil {
+					items = append(items, "Add To Orders Cart")
+				}
+				items = append(items, "Back")
+
 				menuGame := promptui.Select{
 					Label: game.Title,
-					Items: []string{
-						"Buy now",
-						"Add To Orders Cart",
-						"Back",
-					},
+					Items: items,
 				}
 
 				var isPaid = false

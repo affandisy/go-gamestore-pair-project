@@ -85,3 +85,25 @@ func (r *LibraryRepository) FindById(id int64) (*domain.Library, error) {
 
 	return &l, nil
 }
+
+func (r *LibraryRepository) FindByGameId(customerID, gameID int64) (*domain.Library, error) {
+	query := `SELECT libraryid, CustomerID, GameID, CreatedAt
+		FROM library WHERE customerid = $1 AND gameid = $2;`
+
+	var l domain.Library
+	err := r.DB.QueryRow(query, customerID, gameID).Scan(
+		&l.LibraryID,
+		&l.CustomerID,
+		&l.GameID,
+		&l.CreatedAt,
+	)
+
+	if err != nil {
+		if errors.Is(err, sql.ErrNoRows) {
+			return nil, nil
+		}
+		return nil, err
+	}
+
+	return &l, nil
+}

@@ -14,6 +14,7 @@ type OrderRepository interface {
 	Update(order *domain.Order) error
 	Delete(id int64) error
 	UpdateUserOrderStatus(orderID int64, status string) error
+	FindOrderByGameId(customerID, gameID int64) (*domain.Order, error)
 }
 
 type Orderusecase struct {
@@ -60,4 +61,8 @@ func (u *Orderusecase) FindAllOrderByCustomerID(customerID int64) ([]domain.Orde
 
 func (u *Orderusecase) UpdateOrderStatus(orderID int64, status string) error {
 	return u.repo.UpdateUserOrderStatus(orderID, status)
+}
+
+func (u *Orderusecase) FindOrderByGameID(customerID, gameID int64) (*domain.Order, error) {
+	return u.repo.FindOrderByGameId(customerID, gameID)
 }

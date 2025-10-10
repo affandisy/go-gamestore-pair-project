@@ -8,6 +8,7 @@ type LibraryRepository interface {
 	Create(library *domain.Library) error
 	FindAllUserGame(customerID int64) ([]domain.Library, error)
 	FindById(id int64) (*domain.Library, error)
+	FindByGameId(customerID, gameID int64) (*domain.Library, error)
 	// Delete(id int64) error
 }
 
@@ -34,6 +35,10 @@ func (u *Libraryusecase) FindAllGamesInLibrary(customerID int64) ([]domain.Libra
 
 func (u *Libraryusecase) FindGameInLibraryByID(id int64) (*domain.Library, error) {
 	return u.repo.FindById(id)
+}
+
+func (u *Libraryusecase) FindInLibraryByGameID(customerID, gameID int64) (*domain.Library, error) {
+	return u.repo.FindByGameId(customerID, gameID)
 }
 
 // func (u *Libraryusecase) DeleteGameInLibrary(id int64) error {
