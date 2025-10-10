@@ -64,6 +64,7 @@ func (uc *AppMenu) Run() {
 				err := libraryGames(customer, uc.LibraryUC, uc.GameUC, uc.DownloadedGames)
 				if err != nil {
 					fmt.Println("Error: ", err)
+					continue
 				}
 			case "Exit":
 				return
