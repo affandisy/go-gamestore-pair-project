@@ -32,19 +32,10 @@ func orderGames(customerID int64, ucGame *usecase.GameUsecase, ucOrder *usecase.
 			break
 		}
 		if selectedOrderMenu == "Bayar semua" {
-			err := ucPay.PayAllUserGames(customerID, "PAID")
+			err := payAllGames(customerID, ucPay, ucOrder, orders)
 			if err != nil {
 				fmt.Println("Error: ", err)
 				continue
-			}
-
-			fmt.Println("Berhasil membayar semua game!")
-			for _, order := range orders {
-				err := ucOrder.UpdateOrderStatus(order.OrderID, "PAID")
-				if err != nil {
-					fmt.Println("Error: ", err)
-					continue
-				}
 			}
 			continue
 		}
