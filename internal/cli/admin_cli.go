@@ -436,6 +436,7 @@ func adminReport(reportUC *usecase.ReportUsecase) {
 			"Histori Pembelian Customer",
 			"Game Terlaris",
 			"Total Pendapatan",
+			"Summary",
 			"Exit",
 		},
 	}
@@ -477,23 +478,42 @@ func adminReport(reportUC *usecase.ReportUsecase) {
 		}
 
 		table := tablewriter.NewTable(os.Stdout)
-		table.Header("Game", "Total Terjual", "Pendapatan")
+		table.Header("Game", "Total Terjual", "Total Pendapatan")
 
 		for _, b := range best {
 			table.Append([]string{
-				b.Title,
-				fmt.Sprintf("%d", b.TotalSold),
-				fmt.Sprintf("Rp %.2f", b.TotalRevenue),
+				b.GameName,
+				fmt.Sprintf("%d", b.TotalTerjual),
+				fmt.Sprintf("Rp %.2f", b.TotalPendapatan),
 			})
 		}
 		table.Render()
 	case "Total Pendapatan":
-		total, err := reportUC.GetTotalRevenue()
+		total, err := reportUC.GetRevenueSummary()
 		if err != nil {
 			fmt.Println("Error: ", err)
 			return
 		}
-		fmt.Printf("Total Pendapatan: Rp %.2f \n", total)
+		table := tablewriter.NewTable(os.Stdout)
+		table.Header("Kategori", "Nilai")
+		table.Append([]string{"Total Revenue", fmt.Sprintf("Rp %.2f", total.TotalRevenue)})
+		table.Append([]string{"Outstanding Bills", fmt.Sprintf("Rp %.2f", total.OutstandingBills)})
+		table.Append([]string{"Daily Income", fmt.Sprintf("Rp %.2f", total.DailyIncome)})
+		table.Render()
+	case "Summary":
+		summary, err := reportUC.GetAdminSummary()
+		if err != nil {
+			fmt.Println("Error:", err)
+			return
+		}
+		table := tablewriter.NewTable(os.Stdout)
+		table.Header("Metrix", "Jumlah")
+		table.Append([]string{"Total Customer", fmt.Sprintf("%d", summary.TotalCustomers)})
+		table.Append([]string{"Total Game", fmt.Sprintf("%d", summary.TotalGames)})
+		table.Append([]string{"Total Order", fmt.Sprintf("%d", summary.TotalOrders)})
+		table.Append([]string{"Total Pembayaran", fmt.Sprintf("%d", summary.TotalPayments)})
+		table.Append([]string{"Total Pendapatan", fmt.Sprintf("Rp %.2f", summary.TotalRevenue)})
+		table.Render()
 	case "Exit":
 		return
 	}
