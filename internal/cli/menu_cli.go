@@ -75,39 +75,40 @@ func (uc *AppMenu) Run() {
 			}
 		}
 	case "Admin":
-		adminMenu := promptui.Select{
-			Label: "Admin Dashboard",
-			Items: []string{"Database", "Report", "Exit"},
-		}
-
-		_, menu, _ := adminMenu.Run()
-		switch menu {
-		case "Database":
-			databaseMenu := promptui.Select{
-				Label: "Database Dashboard",
-				Items: []string{"Customer", "Games", "Category", "Exit"},
+		for {
+			adminMenu := promptui.Select{
+				Label: "Admin Dashboard",
+				Items: []string{"Database", "Report", "Exit"},
 			}
-			_, menu, _ := databaseMenu.Run()
+
+			_, menu, _ := adminMenu.Run()
 			switch menu {
-			case "Customer":
-				customerDatabase(uc.CustomerUC)
-				return
-			case "Games":
-				gameDatabase(uc.GameUC)
-				return
-			case "Category":
-				categoryDatabase(uc.CategoryUC)
+			case "Database":
+				databaseMenu := promptui.Select{
+					Label: "Database Dashboard",
+					Items: []string{"Customer", "Games", "Category", "Exit"},
+				}
+				_, menu, _ := databaseMenu.Run()
+				switch menu {
+				case "Customer":
+					customerDatabase(uc.CustomerUC)
+					return
+				case "Games":
+					gameDatabase(uc.GameUC)
+					return
+				case "Category":
+					categoryDatabase(uc.CategoryUC)
+					return
+				case "Exit":
+					return
+				}
+			case "Report":
+				adminReport(uc.ReportUC)
 				return
 			case "Exit":
 				return
 			}
-		case "Report":
-			adminReport(uc.ReportUC)
-			return
-		case "Exit":
-			return
 		}
-
 	case "Exit":
 		return
 	}

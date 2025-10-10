@@ -1,0 +1,1121 @@
+
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+		<title>repository: Go Coverage Report</title>
+		<style>
+			body {
+				background: black;
+				color: rgb(80, 80, 80);
+			}
+			body, pre, #legend span {
+				font-family: Menlo, monospace;
+				font-weight: bold;
+			}
+			#topbar {
+				background: black;
+				position: fixed;
+				top: 0; left: 0; right: 0;
+				height: 42px;
+				border-bottom: 1px solid rgb(80, 80, 80);
+			}
+			#content {
+				margin-top: 50px;
+			}
+			#nav, #legend {
+				float: left;
+				margin-left: 10px;
+			}
+			#legend {
+				margin-top: 12px;
+			}
+			#nav {
+				margin-top: 10px;
+			}
+			#legend span {
+				margin: 0 5px;
+			}
+			.cov0 { color: rgb(192, 0, 0) }
+.cov1 { color: rgb(128, 128, 128) }
+.cov2 { color: rgb(116, 140, 131) }
+.cov3 { color: rgb(104, 152, 134) }
+.cov4 { color: rgb(92, 164, 137) }
+.cov5 { color: rgb(80, 176, 140) }
+.cov6 { color: rgb(68, 188, 143) }
+.cov7 { color: rgb(56, 200, 146) }
+.cov8 { color: rgb(44, 212, 149) }
+.cov9 { color: rgb(32, 224, 152) }
+.cov10 { color: rgb(20, 236, 155) }
+
+		</style>
+	</head>
+	<body>
+		<div id="topbar">
+			<div id="nav">
+				<select id="files">
+				
+				<option value="file0">gamestore/internal/repository/category_repository.go (0.0%)</option>
+				
+				<option value="file1">gamestore/internal/repository/customer_repository.go (35.0%)</option>
+				
+				<option value="file2">gamestore/internal/repository/game_repository.go (0.0%)</option>
+				
+				<option value="file3">gamestore/internal/repository/library_repository.go (0.0%)</option>
+				
+				<option value="file4">gamestore/internal/repository/order_repository.go (0.0%)</option>
+				
+				<option value="file5">gamestore/internal/repository/payment_repository.go (0.0%)</option>
+				
+				<option value="file6">gamestore/internal/repository/report_repository.go (0.0%)</option>
+				
+				</select>
+			</div>
+			<div id="legend">
+				<span>not tracked</span>
+			
+				<span class="cov0">not covered</span>
+				<span class="cov8">covered</span>
+			
+			</div>
+		</div>
+		<div id="content">
+		
+		<pre class="file" id="file0" style="display: none">package repository
+
+import (
+        "database/sql"
+        "errors"
+        "gamestore/internal/domain"
+)
+
+type CategoryRepository struct {
+        DB *sql.DB
+}
+
+func (r *CategoryRepository) Create(category *domain.Category) error <span class="cov0" title="0">{
+        query := `INSERT INTO Categories (Name)
+                VALUES ($1)
+                RETURNING CategoryID;`
+
+        return r.DB.QueryRow(
+                query,
+                category.Name,
+        ).Scan(&amp;category.CategoryID)
+}</span>
+
+func (r *CategoryRepository) FindAll() ([]domain.Category, error) <span class="cov0" title="0">{
+        query := `SELECT CategoryID, Name
+                FROM Categories;`
+
+        rows, err := r.DB.Query(query)
+        if err != nil </span><span class="cov0" title="0">{
+                return nil, err
+        }</span>
+
+        <span class="cov0" title="0">defer rows.Close()
+
+        var categories []domain.Category
+
+        for rows.Next() </span><span class="cov0" title="0">{
+                var cat domain.Category
+                err := rows.Scan(
+                        &amp;cat.CategoryID,
+                        &amp;cat.Name,
+                )
+                if err != nil </span><span class="cov0" title="0">{
+                        return nil, err
+                }</span>
+                <span class="cov0" title="0">categories = append(categories, cat)</span>
+        }
+        <span class="cov0" title="0">return categories, rows.Err()</span>
+}
+
+func (r *CategoryRepository) FindById(id int64) (*domain.Category, error) <span class="cov0" title="0">{
+        query := `SELECT CategoryID, Name WHERE CategoryID = $1`
+
+        var cat domain.Category
+
+        err := r.DB.QueryRow(query, id).Scan(
+                &amp;cat.CategoryID,
+                &amp;cat.Name,
+        )
+        if err != nil </span><span class="cov0" title="0">{
+                if errors.Is(err, sql.ErrNoRows) </span><span class="cov0" title="0">{
+                        return nil, nil
+                }</span>
+                <span class="cov0" title="0">return nil, err</span>
+        }
+        <span class="cov0" title="0">return &amp;cat, nil</span>
+}
+
+func (r *CategoryRepository) Update(category *domain.Category) error <span class="cov0" title="0">{
+        query := `UPDATE Categories
+                SET name = $1 WHERE CategoryID = $2;`
+
+        res, err := r.DB.Exec(
+                query,
+                category.Name,
+                category.CategoryID,
+        )
+        if err != nil </span><span class="cov0" title="0">{
+                return err
+        }</span>
+        <span class="cov0" title="0">aff, _ := res.RowsAffected()
+        if aff == 0 </span><span class="cov0" title="0">{
+                return errors.New("category not found")
+        }</span>
+        <span class="cov0" title="0">return nil</span>
+}
+
+func (r *CategoryRepository) Delete(id int64) error <span class="cov0" title="0">{
+        query := `DELETE FROM Categories WHERE CategoryID = $1;`
+
+        res, err := r.DB.Exec(query, id)
+        if err != nil </span><span class="cov0" title="0">{
+                return err
+        }</span>
+
+        <span class="cov0" title="0">aff, _ := res.RowsAffected()
+        if aff == 0 </span><span class="cov0" title="0">{
+                return errors.New("category not found")
+        }</span>
+
+        <span class="cov0" title="0">return nil</span>
+}
+</pre>
+		
+		<pre class="file" id="file1" style="display: none">package repository
+
+import (
+        "database/sql"
+        "errors"
+        "gamestore/internal/domain"
+)
+
+type CustomerRepository struct {
+        DB *sql.DB
+}
+
+func NewCustomerRepository(db *sql.DB) *CustomerRepository <span class="cov8" title="1">{
+        return &amp;CustomerRepository{DB: db}
+}</span>
+
+func (r *CustomerRepository) Create(customer *domain.Customer) error <span class="cov8" title="1">{
+        query := `INSERT INTO customers (name, email, password, createdat, updatedat)
+                VALUES ($1, $2, $3, $4, $5)
+                RETURNING customerid;`
+
+        return r.DB.QueryRow(
+                query,
+                customer.Name,
+                customer.Email,
+                customer.Password,
+                customer.CreatedAt,
+                customer.UpdatedAt,
+        ).Scan(&amp;customer.CustomerID)
+}</span>
+
+func (r *CustomerRepository) FindAll() ([]domain.Customer, error) <span class="cov8" title="1">{
+        query := `SELECT customerid, name, email, password, createdat, updatedat
+                FROM customers;`
+
+        rows, err := r.DB.Query(query)
+        if err != nil </span><span class="cov0" title="0">{
+                return nil, err
+        }</span>
+
+        <span class="cov8" title="1">defer rows.Close()
+
+        var customers []domain.Customer
+
+        for rows.Next() </span><span class="cov8" title="1">{
+                var c domain.Customer
+                err := rows.Scan(
+                        &amp;c.CustomerID,
+                        &amp;c.Name,
+                        &amp;c.Email,
+                        &amp;c.Password,
+                        &amp;c.CreatedAt,
+                        &amp;c.UpdatedAt,
+                )
+                if err != nil </span><span class="cov0" title="0">{
+                        return nil, err
+                }</span>
+                <span class="cov8" title="1">customers = append(customers, c)</span>
+        }
+        <span class="cov8" title="1">return customers, rows.Err()</span>
+}
+
+func (r *CustomerRepository) FindById(id int64) (*domain.Customer, error) <span class="cov0" title="0">{
+        query := `SELECT customerid, name, email, password, createdat, updatedat
+                FROM customers WHERE customerid = $1;`
+
+        var c domain.Customer
+
+        err := r.DB.QueryRow(query, id).Scan(
+                &amp;c.CustomerID,
+                &amp;c.Name,
+                &amp;c.Email,
+                &amp;c.Password,
+                &amp;c.CreatedAt,
+                &amp;c.UpdatedAt,
+        )
+        if err != nil </span><span class="cov0" title="0">{
+                if errors.Is(err, sql.ErrNoRows) </span><span class="cov0" title="0">{
+                        return nil, nil
+                }</span>
+                <span class="cov0" title="0">return nil, err</span>
+        }
+        <span class="cov0" title="0">return &amp;c, nil</span>
+}
+
+func (r *CustomerRepository) Update(customer *domain.Customer) error <span class="cov0" title="0">{
+        query := `UPDATE customers
+                SET name = $1, email = $2, password = $3, updated_at = $4
+                WHERE customerid = $5;`
+
+        res, err := r.DB.Exec(
+                query,
+                customer.Name,
+                customer.Email,
+                customer.Password,
+                customer.UpdatedAt,
+                customer.CustomerID,
+        )
+        if err != nil </span><span class="cov0" title="0">{
+                return err
+        }</span>
+        <span class="cov0" title="0">aff, _ := res.RowsAffected()
+        if aff == 0 </span><span class="cov0" title="0">{
+                return errors.New("customer not found")
+        }</span>
+        <span class="cov0" title="0">return nil</span>
+}
+
+func (r *CustomerRepository) Delete(id int64) error <span class="cov0" title="0">{
+        query := `DELETE FROM customers WHERE customerid = $1;`
+
+        res, err := r.DB.Exec(query, id)
+        if err != nil </span><span class="cov0" title="0">{
+                return err
+        }</span>
+
+        <span class="cov0" title="0">aff, _ := res.RowsAffected()
+        if aff == 0 </span><span class="cov0" title="0">{
+                return errors.New("customer not found")
+        }</span>
+
+        <span class="cov0" title="0">return nil</span>
+}
+</pre>
+		
+		<pre class="file" id="file2" style="display: none">package repository
+
+import (
+        "database/sql"
+        "errors"
+        "gamestore/internal/domain"
+)
+
+type GameRepository struct {
+        DB *sql.DB
+}
+
+func (r *GameRepository) Create(game *domain.Game) error <span class="cov0" title="0">{
+        query := `INSERT INTO games (CategoryID, Title, Price, CreatedAt, UpdatedAt)
+                VALUES ($1, $2, $3, $4, $5)
+                RETURNING GameID;`
+
+        err := r.DB.QueryRow(
+                query,
+                game.CategoryID,
+                game.Title,
+                game.Price,
+                game.CreatedAt,
+                game.UpdateAt,
+        ).Scan(&amp;game.GameID)
+
+        if err != nil </span><span class="cov0" title="0">{
+                return err
+        }</span>
+
+        <span class="cov0" title="0">return nil</span>
+}
+
+func (r *GameRepository) FindAll() ([]domain.Game, error) <span class="cov0" title="0">{
+        query := `SELECT GameID, CategoryID, Title, Price, CreatedAt, UpdatedAt
+                FROM games;`
+
+        rows, err := r.DB.Query(query)
+        if err != nil </span><span class="cov0" title="0">{
+                return nil, err
+        }</span>
+
+        <span class="cov0" title="0">defer rows.Close()
+
+        var games []domain.Game
+        for rows.Next() </span><span class="cov0" title="0">{
+                var g domain.Game
+                err := rows.Scan(
+                        &amp;g.GameID,
+                        &amp;g.CategoryID,
+                        &amp;g.Title,
+                        &amp;g.Price,
+                        &amp;g.CreatedAt,
+                        &amp;g.UpdateAt,
+                )
+                if err != nil </span><span class="cov0" title="0">{
+                        return nil, err
+                }</span>
+                <span class="cov0" title="0">games = append(games, g)</span>
+        }
+
+        <span class="cov0" title="0">if err = rows.Err(); err != nil </span><span class="cov0" title="0">{
+                return nil, err
+        }</span>
+
+        <span class="cov0" title="0">return games, nil</span>
+}
+
+func (r *GameRepository) FindById(id int64) (*domain.Game, error) <span class="cov0" title="0">{
+        query := `SELECT GameID, CategoryID, Title, Price, CreatedAt, UpdatedAt
+                FROM games
+                WHERE GameID = $1;`
+
+        var g domain.Game
+        err := r.DB.QueryRow(query, id).Scan(
+                &amp;g.GameID,
+                &amp;g.CategoryID,
+                &amp;g.Title,
+                &amp;g.Price,
+                &amp;g.CreatedAt,
+                &amp;g.UpdateAt,
+        )
+
+        if err != nil </span><span class="cov0" title="0">{
+                if errors.Is(err, sql.ErrNoRows) </span><span class="cov0" title="0">{
+                        return nil, nil
+                }</span>
+                <span class="cov0" title="0">return nil, err</span>
+        }
+
+        <span class="cov0" title="0">return &amp;g, nil</span>
+}
+
+func (r *GameRepository) Update(game *domain.Game) error <span class="cov0" title="0">{
+        query := `UPDATE games
+                SET CategoryID = $1, Title = $2, Price = $3, UpdatedAt = $4
+                WHERE GameID = $5;`
+
+        result, err := r.DB.Exec(
+                query,
+                game.CategoryID,
+                game.Title,
+                game.Price,
+                game.UpdateAt,
+                game.GameID,
+        )
+
+        if err != nil </span><span class="cov0" title="0">{
+                return err
+        }</span>
+
+        <span class="cov0" title="0">rowsAffected, err := result.RowsAffected()
+        if err != nil </span><span class="cov0" title="0">{
+                return err
+        }</span>
+        <span class="cov0" title="0">if rowsAffected == 0 </span><span class="cov0" title="0">{
+                return errors.New("game not found")
+        }</span>
+
+        <span class="cov0" title="0">return nil</span>
+}
+
+func (r *GameRepository) Delete(id int64) error <span class="cov0" title="0">{
+        query := `DELETE FROM games WHERE GameID = $1;`
+
+        result, err := r.DB.Exec(query, id)
+        if err != nil </span><span class="cov0" title="0">{
+                return err
+        }</span>
+
+        <span class="cov0" title="0">rowsAffected, err := result.RowsAffected()
+        if err != nil </span><span class="cov0" title="0">{
+                return err
+        }</span>
+        <span class="cov0" title="0">if rowsAffected == 0 </span><span class="cov0" title="0">{
+                return errors.New("game not found")
+        }</span>
+
+        <span class="cov0" title="0">return nil</span>
+}
+
+func (r *GameRepository) FindByCategoryID(categoryID int64) ([]domain.Game, error) <span class="cov0" title="0">{
+        query := `SELECT *
+                FROM games
+                WHERE CategoryID = $1;`
+
+        rows, err := r.DB.Query(query, categoryID)
+        if err != nil </span><span class="cov0" title="0">{
+                return nil, err
+        }</span>
+        <span class="cov0" title="0">defer rows.Close()
+
+        var games []domain.Game
+        for rows.Next() </span><span class="cov0" title="0">{
+                var g domain.Game
+                err := rows.Scan(
+                        &amp;g.GameID,
+                        &amp;g.CategoryID,
+                        &amp;g.Title,
+                        &amp;g.Price,
+                        &amp;g.CreatedAt,
+                        &amp;g.UpdateAt,
+                )
+                if err != nil </span><span class="cov0" title="0">{
+                        return nil, err
+                }</span>
+
+                <span class="cov0" title="0">games = append(games, g)</span>
+        }
+
+        <span class="cov0" title="0">return games, nil</span>
+}
+</pre>
+		
+		<pre class="file" id="file3" style="display: none">package repository
+
+import (
+        "database/sql"
+        "errors"
+        "gamestore/internal/domain"
+)
+
+type LibraryRepository struct {
+        DB *sql.DB
+}
+
+func (r *LibraryRepository) Create(library *domain.Library) error <span class="cov0" title="0">{
+        query := `
+                INSERT INTO library (customerid, gameid) VALUES
+                ($1, $2) RETURNING libraryid;
+        `
+
+        err := r.DB.QueryRow(query, library.CustomerID, library.GameID).Scan(&amp;library.LibraryID)
+        if err != nil </span><span class="cov0" title="0">{
+                return err
+        }</span>
+
+        <span class="cov0" title="0">return nil</span>
+}
+
+func (r *LibraryRepository) FindAllUserGame(customerID int64) ([]domain.Library, error) <span class="cov0" title="0">{
+        query := `
+                SELECT l.libraryid, l.gameid, g.title, l.createdat
+                FROM library l
+                JOIN games g
+                ON l.gameid = g.gameid
+                WHERE customerid = $1
+                ;
+        `
+
+        rows, err := r.DB.Query(query, customerID)
+        if err != nil </span><span class="cov0" title="0">{
+                return nil, err
+        }</span>
+
+        <span class="cov0" title="0">defer rows.Close()
+
+        var library []domain.Library
+
+        for rows.Next() </span><span class="cov0" title="0">{
+                var l domain.Library
+                err := rows.Scan(
+                        &amp;l.LibraryID,
+                        &amp;l.GameID,
+                        &amp;l.GameTitle,
+                        &amp;l.CreatedAt,
+                )
+                if err != nil </span><span class="cov0" title="0">{
+                        return nil, err
+                }</span>
+                <span class="cov0" title="0">library = append(library, l)</span>
+        }
+
+        <span class="cov0" title="0">if err = rows.Err(); err != nil </span><span class="cov0" title="0">{
+                return nil, err
+        }</span>
+
+        <span class="cov0" title="0">return library, nil</span>
+}
+
+func (r *LibraryRepository) FindById(id int64) (*domain.Library, error) <span class="cov0" title="0">{
+        query := `SELECT libraryid, CustomerID, GameID, CreatedAt
+                FROM library WHERE libraryid = $1;`
+
+        var l domain.Library
+        err := r.DB.QueryRow(query, id).Scan(
+                &amp;l.LibraryID,
+                &amp;l.CustomerID,
+                &amp;l.GameID,
+                &amp;l.CreatedAt,
+        )
+
+        if err != nil </span><span class="cov0" title="0">{
+                if errors.Is(err, sql.ErrNoRows) </span><span class="cov0" title="0">{
+                        return nil, nil
+                }</span>
+                <span class="cov0" title="0">return nil, err</span>
+        }
+
+        <span class="cov0" title="0">return &amp;l, nil</span>
+}
+
+func (r *LibraryRepository) FindByGameId(customerID, gameID int64) (*domain.Library, error) <span class="cov0" title="0">{
+        query := `SELECT libraryid, CustomerID, GameID, CreatedAt
+                FROM library WHERE customerid = $1 AND gameid = $2;`
+
+        var l domain.Library
+        err := r.DB.QueryRow(query, customerID, gameID).Scan(
+                &amp;l.LibraryID,
+                &amp;l.CustomerID,
+                &amp;l.GameID,
+                &amp;l.CreatedAt,
+        )
+
+        if err != nil </span><span class="cov0" title="0">{
+                if errors.Is(err, sql.ErrNoRows) </span><span class="cov0" title="0">{
+                        return nil, nil
+                }</span>
+                <span class="cov0" title="0">return nil, err</span>
+        }
+
+        <span class="cov0" title="0">return &amp;l, nil</span>
+}
+</pre>
+		
+		<pre class="file" id="file4" style="display: none">package repository
+
+import (
+        "database/sql"
+        "errors"
+        "gamestore/internal/domain"
+)
+
+type OrderRepository struct {
+        DB *sql.DB
+}
+
+func (r *OrderRepository) Create(order *domain.Order) (*domain.Order, error) <span class="cov0" title="0">{
+        query := `INSERT INTO orders (CustomerID, GameID)
+          VALUES ($1, $2)
+          RETURNING OrderID
+  ;`
+
+        err := r.DB.QueryRow(query,
+                order.CustomerID,
+                order.GameID,
+        ).Scan(&amp;order.OrderID)
+
+        if err != nil </span><span class="cov0" title="0">{
+                return nil, err
+        }</span>
+
+        <span class="cov0" title="0">return order, nil</span>
+}
+
+func (r *OrderRepository) FindAll() ([]domain.Order, error) <span class="cov0" title="0">{
+        query := `
+                SELECT OrderID, CustomerID, GameID, CreatedAt
+                FROM orders;
+        `
+
+        rows, err := r.DB.Query(query)
+        if err != nil </span><span class="cov0" title="0">{
+                return nil, err
+        }</span>
+
+        <span class="cov0" title="0">defer rows.Close()
+
+        var orders []domain.Order
+
+        for rows.Next() </span><span class="cov0" title="0">{
+                var o domain.Order
+                err := rows.Scan(
+                        &amp;o.OrderID,
+                        &amp;o.CustomerID,
+                        &amp;o.GameID,
+                        &amp;o.CreatedAt,
+                )
+                if err != nil </span><span class="cov0" title="0">{
+                        return nil, err
+                }</span>
+                <span class="cov0" title="0">orders = append(orders, o)</span>
+        }
+
+        <span class="cov0" title="0">if err = rows.Err(); err != nil </span><span class="cov0" title="0">{
+                return nil, err
+        }</span>
+
+        <span class="cov0" title="0">return orders, nil</span>
+}
+
+func (r *OrderRepository) FindById(id int64) (*domain.Order, error) <span class="cov0" title="0">{
+        query := `SELECT OrderID, CustomerID, GameID, CreatedAt
+                FROM orders WHERE OrderID = $1;`
+
+        var o domain.Order
+        err := r.DB.QueryRow(query, id).Scan(
+                &amp;o.OrderID,
+                &amp;o.CustomerID,
+                &amp;o.GameID,
+                &amp;o.CreatedAt,
+        )
+
+        if err != nil </span><span class="cov0" title="0">{
+                if errors.Is(err, sql.ErrNoRows) </span><span class="cov0" title="0">{
+                        return nil, nil
+                }</span>
+                <span class="cov0" title="0">return nil, err</span>
+        }
+
+        <span class="cov0" title="0">return &amp;o, nil</span>
+}
+
+func (r *OrderRepository) Update(order *domain.Order) error <span class="cov0" title="0">{
+        query := `UPDATE orders SET CustomerID = $1, GameID = $2, Status = $3, CreatedAt = $4
+                WHERE OrderID = $4;`
+
+        result, err := r.DB.Exec(
+                query,
+                order.CustomerID,
+                order.GameID,
+                order.OrderID,
+                order.Status,
+                order.CreatedAt,
+                order.OrderID,
+        )
+
+        if err != nil </span><span class="cov0" title="0">{
+                return err
+        }</span>
+
+        <span class="cov0" title="0">rowsAffected, err := result.RowsAffected()
+        if err != nil </span><span class="cov0" title="0">{
+                return err
+        }</span>
+        <span class="cov0" title="0">if rowsAffected == 0 </span><span class="cov0" title="0">{
+                return errors.New("order not found")
+        }</span>
+
+        <span class="cov0" title="0">return nil</span>
+}
+
+func (r *OrderRepository) Delete(id int64) error <span class="cov0" title="0">{
+        query := `DELETE FROM orders WHERE OrderID = $1;`
+
+        result, err := r.DB.Exec(query, id)
+        if err != nil </span><span class="cov0" title="0">{
+                return err
+        }</span>
+
+        <span class="cov0" title="0">rowsAffected, err := result.RowsAffected()
+        if err != nil </span><span class="cov0" title="0">{
+                return err
+        }</span>
+        <span class="cov0" title="0">if rowsAffected == 0 </span><span class="cov0" title="0">{
+                return errors.New("order not found")
+        }</span>
+
+        <span class="cov0" title="0">return nil</span>
+}
+
+func (r *OrderRepository) FindAllByCustomerID(customerID int64) ([]domain.Order, error) <span class="cov0" title="0">{
+        query := `SELECT o.orderid, g.gameid, g.title, g.price
+                  FROM orders o
+                          JOIN games g
+                          ON o.gameid = g.gameid
+                  WHERE o.customerid = $1 AND status='UNPAID';`
+
+        rows, err := r.DB.Query(query, customerID)
+        if err != nil </span><span class="cov0" title="0">{
+                return nil, err
+        }</span>
+        <span class="cov0" title="0">defer rows.Close()
+
+        var orders []domain.Order
+        for rows.Next() </span><span class="cov0" title="0">{
+                var g domain.Order
+                err := rows.Scan(
+                        &amp;g.OrderID,
+                        &amp;g.GameID,
+                        &amp;g.GameTitle,
+                        &amp;g.GamePrice,
+                )
+                if err != nil </span><span class="cov0" title="0">{
+                        return nil, err
+                }</span>
+
+                <span class="cov0" title="0">orders = append(orders, g)</span>
+        }
+
+        <span class="cov0" title="0">return orders, nil</span>
+}
+
+func (r *OrderRepository) UpdateUserOrderStatus(orderID int64, status string) error <span class="cov0" title="0">{
+        query := `
+                UPDATE orders
+                SET status = $1
+                WHERE orderID = $2
+                ;
+        `
+
+        result, err := r.DB.Exec(query, status, orderID)
+        if err != nil </span><span class="cov0" title="0">{
+                return err
+        }</span>
+
+        <span class="cov0" title="0">rowsAffected, err := result.RowsAffected()
+        if err != nil </span><span class="cov0" title="0">{
+                return err
+        }</span>
+
+        <span class="cov0" title="0">if rowsAffected == 0 </span><span class="cov0" title="0">{
+                return errors.New("Order not found")
+        }</span>
+
+        <span class="cov0" title="0">return nil</span>
+}
+
+func (r *OrderRepository) FindOrderByGameId(customerID, gameID int64) (*domain.Order, error) <span class="cov0" title="0">{
+        query := `SELECT OrderID, CustomerID, GameID, CreatedAt
+                FROM orders WHERE CustomerID = $1 AND GameID = $2;`
+
+        var o domain.Order
+        err := r.DB.QueryRow(query, customerID, gameID).Scan(
+                &amp;o.OrderID,
+                &amp;o.CustomerID,
+                &amp;o.GameID,
+                &amp;o.CreatedAt,
+        )
+
+        if err != nil </span><span class="cov0" title="0">{
+                if errors.Is(err, sql.ErrNoRows) </span><span class="cov0" title="0">{
+                        return nil, nil
+                }</span>
+                <span class="cov0" title="0">return nil, err</span>
+        }
+
+        <span class="cov0" title="0">return &amp;o, nil</span>
+}
+</pre>
+		
+		<pre class="file" id="file5" style="display: none">package repository
+
+import (
+        "database/sql"
+        "errors"
+        "gamestore/internal/domain"
+)
+
+type PaymentRepository struct {
+        DB *sql.DB
+}
+
+func NewPaymentRepository(db *sql.DB) *PaymentRepository <span class="cov0" title="0">{
+        return &amp;PaymentRepository{DB: db}
+}</span>
+
+func (r *PaymentRepository) Create(payment *domain.Payment) error <span class="cov0" title="0">{
+        query := `INSERT INTO payments (CustomerID, Amount, Status, CreatedAt)
+                VALUES ($1, $2, $3, $4)
+                RETURNING PaymentID;`
+
+        err := r.DB.QueryRow(
+                query,
+                payment.CustomerID,
+                payment.Amount,
+                payment.Status,
+                payment.CreatedAt,
+        ).Scan(&amp;payment.PaymentID)
+
+        if err != nil </span><span class="cov0" title="0">{
+                return err
+        }</span>
+
+        <span class="cov0" title="0">return nil</span>
+}
+
+func (r *PaymentRepository) FindAll() ([]domain.Payment, error) <span class="cov0" title="0">{
+        query := `SELECT PaymentID, CustomerID, Amount, Status, CreatedAt
+                FROM payments;`
+
+        rows, err := r.DB.Query(query)
+        if err != nil </span><span class="cov0" title="0">{
+                return nil, err
+        }</span>
+
+        <span class="cov0" title="0">defer rows.Close()
+
+        var payments []domain.Payment
+
+        for rows.Next() </span><span class="cov0" title="0">{
+                var p domain.Payment
+                err := rows.Scan(
+                        &amp;p.PaymentID,
+                        &amp;p.CustomerID,
+                        &amp;p.Amount,
+                        &amp;p.Status,
+                        &amp;p.CreatedAt,
+                )
+                if err != nil </span><span class="cov0" title="0">{
+                        return nil, err
+                }</span>
+                <span class="cov0" title="0">payments = append(payments, p)</span>
+        }
+
+        <span class="cov0" title="0">if err = rows.Err(); err != nil </span><span class="cov0" title="0">{
+                return nil, err
+        }</span>
+
+        <span class="cov0" title="0">return payments, nil</span>
+}
+
+func (r *PaymentRepository) FindById(id int64) (*domain.Payment, error) <span class="cov0" title="0">{
+        query := `SELECT PaymentID, CustomerID, Amount, Status, CreatedAt
+                FROM payments WHERE PaymentID = $1;`
+
+        var p domain.Payment
+        err := r.DB.QueryRow(query, id).Scan(
+                &amp;p.PaymentID,
+                &amp;p.CustomerID,
+                &amp;p.Amount,
+                &amp;p.Status,
+                &amp;p.CreatedAt,
+        )
+
+        if err != nil </span><span class="cov0" title="0">{
+                if errors.Is(err, sql.ErrNoRows) </span><span class="cov0" title="0">{
+                        return nil, nil
+                }</span>
+                <span class="cov0" title="0">return nil, err</span>
+        }
+
+        <span class="cov0" title="0">return &amp;p, nil</span>
+}
+
+func (r *PaymentRepository) Update(payment *domain.Payment) error <span class="cov0" title="0">{
+        query := `UPDATE payments
+                SET CustomerID = $1, Amount = $2, Status = $3
+                WHERE PaymentID = $4;`
+
+        result, err := r.DB.Exec(
+                query,
+                payment.CustomerID,
+                payment.Amount,
+                payment.Status,
+                payment.PaymentID,
+        )
+
+        if err != nil </span><span class="cov0" title="0">{
+                return err
+        }</span>
+
+        <span class="cov0" title="0">rowsAffected, err := result.RowsAffected()
+        if err != nil </span><span class="cov0" title="0">{
+                return err
+        }</span>
+        <span class="cov0" title="0">if rowsAffected == 0 </span><span class="cov0" title="0">{
+                return errors.New("payment not found")
+        }</span>
+
+        <span class="cov0" title="0">return nil</span>
+}
+
+func (r *PaymentRepository) Delete(id int64) error <span class="cov0" title="0">{
+        query := `DELETE FROM payments WHERE PaymentID = $1;`
+
+        result, err := r.DB.Exec(query, id)
+        if err != nil </span><span class="cov0" title="0">{
+                return err
+        }</span>
+
+        <span class="cov0" title="0">rowsAffected, err := result.RowsAffected()
+        if err != nil </span><span class="cov0" title="0">{
+                return err
+        }</span>
+        <span class="cov0" title="0">if rowsAffected == 0 </span><span class="cov0" title="0">{
+                return errors.New("payment not found")
+        }</span>
+
+        <span class="cov0" title="0">return nil</span>
+}
+
+func (r *PaymentRepository) PayAllGames(payment *domain.Payment) error <span class="cov0" title="0">{
+        query := `
+                SELECT SUM(g.price)
+                FROM orders o
+                JOIN games g
+                ON o.gameid = g.gameid
+                JOIN customers c
+                ON o.customerid = c.customerid
+                WHERE o.status = 'UNPAID' AND c.customerid = $1
+                ;
+        `
+
+        rows, err := r.DB.Query(query, payment.CustomerID)
+        if err != nil </span><span class="cov0" title="0">{
+                return err
+        }</span>
+
+        <span class="cov0" title="0">for rows.Next() </span><span class="cov0" title="0">{
+                var p domain.Payment
+                err := rows.Scan(&amp;p.Amount)
+                if err != nil </span><span class="cov0" title="0">{
+                        return err
+                }</span>
+        }
+
+        <span class="cov0" title="0">query2 := `INSERT INTO payments (CustomerID, Amount, Status, CreatedAt)
+                VALUES ($1, $2, $3, $4)
+                RETURNING PaymentID;`
+
+        err2 := r.DB.QueryRow(
+                query2,
+                payment.CustomerID,
+                payment.Amount,
+                payment.Status,
+                payment.CreatedAt,
+        ).Scan(&amp;payment.PaymentID)
+
+        if err2 != nil </span><span class="cov0" title="0">{
+                return err2
+        }</span>
+
+        <span class="cov0" title="0">return nil</span>
+
+}
+</pre>
+		
+		<pre class="file" id="file6" style="display: none">package repository
+
+import (
+        "database/sql"
+        "gamestore/internal/domain"
+)
+
+type ReportRepository struct {
+        DB *sql.DB
+}
+
+func NewReportRepository(db *sql.DB) *ReportRepository <span class="cov0" title="0">{
+        return &amp;ReportRepository{DB: db}
+}</span>
+
+// Customer Purchase History
+func (r *ReportRepository) GetCustomerPurchaseHistory() ([]domain.PurchaseHistory, error) <span class="cov0" title="0">{
+        query := `SELECT OrderID, customer_name, customer_email, game_title, price, payment_status, order_date
+                FROM v_customer_purchase_history
+                ORDER BY OrderID;`
+
+        rows, err := r.DB.Query(query)
+        if err != nil </span><span class="cov0" title="0">{
+                return nil, err
+        }</span>
+
+        <span class="cov0" title="0">defer rows.Close()
+
+        var histories []domain.PurchaseHistory
+        for rows.Next() </span><span class="cov0" title="0">{
+                var h domain.PurchaseHistory
+                err := rows.Scan(&amp;h.OrderID, &amp;h.CustomerName, &amp;h.CustomerEmail, &amp;h.GameTitle, &amp;h.Price, &amp;h.PaymentStatus, &amp;h.OrderDate)
+                if err != nil </span><span class="cov0" title="0">{
+                        return nil, err
+                }</span>
+                <span class="cov0" title="0">histories = append(histories, h)</span>
+        }
+        <span class="cov0" title="0">return histories, nil</span>
+}
+
+// Game Terlaris
+func (r *ReportRepository) GetBestSellingGames() ([]domain.BestSeller, error) <span class="cov0" title="0">{
+        query := `SELECT nama_game, total_terjual, total_pendapatan
+                FROM v_best_selling_games
+                ORDER BY total_terjual DESC;`
+
+        rows, err := r.DB.Query(query)
+        if err != nil </span><span class="cov0" title="0">{
+                return nil, err
+        }</span>
+
+        <span class="cov0" title="0">defer rows.Close()
+
+        var bests []domain.BestSeller
+        for rows.Next() </span><span class="cov0" title="0">{
+                var b domain.BestSeller
+                err := rows.Scan(&amp;b.GameName, &amp;b.TotalTerjual, &amp;b.TotalPendapatan)
+                if err != nil </span><span class="cov0" title="0">{
+                        return nil, err
+                }</span>
+                <span class="cov0" title="0">bests = append(bests, b)</span>
+        }
+        <span class="cov0" title="0">return bests, nil</span>
+}
+
+// Total Revenue
+func (r *ReportRepository) GetRevenueSummary() (domain.RevenueSummary, error) <span class="cov0" title="0">{
+        query := `SELECT total_revenue, outstanding_bills, daily_income
+                FROM v_total_revenue;`
+        var s domain.RevenueSummary
+        err := r.DB.QueryRow(query).Scan(&amp;s.TotalRevenue, &amp;s.OutstandingBills, &amp;s.DailyIncome)
+        return s, err
+}</span>
+
+// Summary
+func (r *ReportRepository) GetAdminSummary() (domain.AdminSummary, error) <span class="cov0" title="0">{
+        query := `SELECT total_customers, total_games, total_orders, total_payments, total_revenue
+                FROM v_summary;`
+
+        var summary domain.AdminSummary
+        err := r.DB.QueryRow(query).Scan(
+                &amp;summary.TotalCustomers,
+                &amp;summary.TotalGames,
+                &amp;summary.TotalOrders,
+                &amp;summary.TotalPayments,
+                &amp;summary.TotalRevenue,
+        )
+        return summary, err
+}</span>
+</pre>
+		
+		</div>
+	</body>
+	<script>
+	(function() {
+		var files = document.getElementById('files');
+		var visible;
+		files.addEventListener('change', onChange, false);
+		function select(part) {
+			if (visible)
+				visible.style.display = 'none';
+			visible = document.getElementById(part);
+			if (!visible)
+				return;
+			files.value = part;
+			visible.style.display = 'block';
+			location.hash = part;
+		}
+		function onChange() {
+			select(files.value);
+			window.scrollTo(0, 0);
+		}
+		if (location.hash != "") {
+			select(location.hash.substr(1));
+		}
+		if (!visible) {
+			select("file0");
+		}
+	})();
+	</script>
+</html>
