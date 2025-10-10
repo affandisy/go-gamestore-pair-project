@@ -13,7 +13,21 @@ type PurchaseHistory struct {
 }
 
 type BestSeller struct {
-	Title        string
-	TotalSold    int
-	TotalRevenue float64
+	GameName        string
+	TotalTerjual    int
+	TotalPendapatan float64
+}
+
+type RevenueSummary struct {
+	TotalRevenue     float64
+	OutstandingBills float64
+	DailyIncome      float64
+}
+
+type AdminSummary struct {
+	TotalCustomers int
+	TotalGames     int
+	TotalOrders    int
+	TotalPayments  int
+	TotalRevenue   float64
 }

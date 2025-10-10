@@ -40,9 +40,9 @@ func (r *ReportRepository) GetCustomerPurchaseHistory() ([]domain.PurchaseHistor
 
 // Game Terlaris
 func (r *ReportRepository) GetBestSellingGames() ([]domain.BestSeller, error) {
-	query := `SELECT title, total_sold, total_revenue
+	query := `SELECT nama_game, total_terjual, total_pendapatan
 		FROM v_best_selling_games
-		ORDER BY total_sold DESC;`
+		ORDER BY total_terjual DESC;`
 
 	rows, err := r.DB.Query(query)
 	if err != nil {
@@ -54,7 +54,7 @@ func (r *ReportRepository) GetBestSellingGames() ([]domain.BestSeller, error) {
 	var bests []domain.BestSeller
 	for rows.Next() {
 		var b domain.BestSeller
-		err := rows.Scan(&b.Title, &b.TotalSold, &b.TotalRevenue)
+		err := rows.Scan(&b.GameName, &b.TotalTerjual, &b.TotalPendapatan)
 		if err != nil {
 			return nil, err
 		}
@@ -63,9 +63,27 @@ func (r *ReportRepository) GetBestSellingGames() ([]domain.BestSeller, error) {
 	return bests, nil
 }
 
-func (r *ReportRepository) GetTotalRevenue() (float64, error) {
-	query := `SELECT COALESCE(total_revenue, 0) FROM v_total_revenue;`
-	var total float64
-	err := r.DB.QueryRow(query).Scan(&total)
-	return total, err
+// Total Revenue
+func (r *ReportRepository) GetRevenueSummary() (domain.RevenueSummary, error) {
+	query := `SELECT total_revenue, outstanding_bills, daily_income
+		FROM v_total_revenue;`
+	var s domain.RevenueSummary
+	err := r.DB.QueryRow(query).Scan(&s.TotalRevenue, &s.OutstandingBills, &s.DailyIncome)
+	return s, err
+}
+
+// Summary
+func (r *ReportRepository) GetAdminSummary() (domain.AdminSummary, error) {
+	query := `SELECT total_customers, total_games, total_orders, total_payments, total_revenue
+		FROM v_summary;`
+
+	var summary domain.AdminSummary
+	err := r.DB.QueryRow(query).Scan(
+		&summary.TotalCustomers,
+		&summary.TotalGames,
+		&summary.TotalOrders,
+		&summary.TotalPayments,
+		&summary.TotalRevenue,
+	)
+	return summary, err
 }

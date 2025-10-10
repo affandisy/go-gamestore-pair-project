@@ -21,6 +21,10 @@ func (u *ReportUsecase) GetBestSellingGames() ([]domain.BestSeller, error) {
 	return u.repo.GetBestSellingGames()
 }
 
-func (u *ReportUsecase) GetTotalRevenue() (float64, error) {
-	return u.repo.GetTotalRevenue()
+func (u *ReportUsecase) GetRevenueSummary() (domain.RevenueSummary, error) {
+	return u.repo.GetRevenueSummary()
+}
+
+func (u *ReportUsecase) GetAdminSummary() (domain.AdminSummary, error) {
+	return u.repo.GetAdminSummary()
 }
