@@ -34,8 +34,15 @@ Table Orders {
 
 Table Payments {
   paymentID INT [pk, increment]
-  orderID int not null [ref: > Orders.orderID] 
+  customerID int not null [ref: > Customers.customerID] 
   amount float64
   status varchar(50)
   createdAt timestamp
+}
+
+Table Library {
+  LibraryID int [pk, increment]
+  CustomerID int [ref: > Customers.CustomerID, not null]
+  GameID int [ref: > Games.GameID, not null]
+  CreatedAt timestamptz [not null, default: `NOW()`]
 }
