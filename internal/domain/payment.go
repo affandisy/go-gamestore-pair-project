@@ -11,9 +11,9 @@ import "time"
 // );
 
 type Payment struct {
-	PaymentID int64
-	OrderID   int64
-	Amount    float64
-	Status    string
-	CreatedAt time.Time
+	PaymentID  int64
+	CustomerID int64
+	Amount     float64
+	Status     string
+	CreatedAt  time.Time
 }

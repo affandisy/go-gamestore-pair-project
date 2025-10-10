@@ -41,31 +41,33 @@ func (uc *AppMenu) Run() {
 			return
 		}
 
-		storeMenu := promptui.Select{
-			Label: "Store Menu",
-			Items: []string{
-				"Store",
-				"Orders",
-				"Library",
-				"Exit",
-			},
-		}
+		for {
+			storeMenu := promptui.Select{
+				Label: "Store Menu",
+				Items: []string{
+					"Store",
+					"Orders",
+					"Library",
+					"Exit",
+				},
+			}
 
-		_, menu, _ := storeMenu.Run()
+			_, menu, _ := storeMenu.Run()
 
-		switch menu {
-		case "Store":
-			gameStore(customer.CustomerID, uc.GameUC, uc.CategoryUC, uc.OrderUC, uc.PaymentUC)
-		case "Orders":
-			orderGames(customer.CustomerID, uc.OrderUC)
-		case "Library":
-			fmt.Println("This is library")
-		case "Exit":
-			return
-		}
+			switch menu {
+			case "Store":
+				gameStore(customer.CustomerID, uc.GameUC, uc.CategoryUC, uc.OrderUC, uc.PaymentUC)
+			case "Orders":
+				orderGames(customer.CustomerID, uc.GameUC, uc.OrderUC, uc.PaymentUC)
+			case "Library":
+				fmt.Println("This is library")
+			case "Exit":
+				return
+			}
 
-		if menu == "Exit" {
-			return
+			if menu == "Exit" {
+				return
+			}
 		}
 	case "Admin":
 		adminMenu := promptui.Select{

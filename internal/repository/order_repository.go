@@ -11,15 +11,14 @@ type OrderRepository struct {
 }
 
 func (r *OrderRepository) Create(order *domain.Order) (*domain.Order, error) {
-	query := `INSERT INTO orders (CustomerID, GameID, CreatedAt)
-		VALUES ($1, $2, $3)
-		RETURNING OrderID;`
+	query := `INSERT INTO orders (CustomerID, GameID)
+          VALUES ($1, $2)
+          RETURNING OrderID
+  ;`
 
-	err := r.DB.QueryRow(
-		query,
+	err := r.DB.QueryRow(query,
 		order.CustomerID,
 		order.GameID,
-		order.CreatedAt,
 	).Scan(&order.OrderID)
 
 	if err != nil {
@@ -30,8 +29,10 @@ func (r *OrderRepository) Create(order *domain.Order) (*domain.Order, error) {
 }
 
 func (r *OrderRepository) FindAll() ([]domain.Order, error) {
-	query := `SELECT OrderID, CustomerID, GameID, CreatedAt
-		FROM orders;`
+	query := `
+		SELECT OrderID, CustomerID, GameID, CreatedAt
+		FROM orders;
+	`
 
 	rows, err := r.DB.Query(query)
 	if err != nil {
@@ -86,7 +87,7 @@ func (r *OrderRepository) FindById(id int64) (*domain.Order, error) {
 }
 
 func (r *OrderRepository) Update(order *domain.Order) error {
-	query := `UPDATE orders SET CustomerID = $1, GameID = $2, CreatedAt = $3
+	query := `UPDATE orders SET CustomerID = $1, GameID = $2, Status = $3, CreatedAt = $4
 		WHERE OrderID = $4;`
 
 	result, err := r.DB.Exec(
@@ -94,6 +95,7 @@ func (r *OrderRepository) Update(order *domain.Order) error {
 		order.CustomerID,
 		order.GameID,
 		order.OrderID,
+		order.Status,
 		order.CreatedAt,
 		order.OrderID,
 	)
@@ -133,11 +135,11 @@ func (r *OrderRepository) Delete(id int64) error {
 }
 
 func (r *OrderRepository) FindAllByCustomerID(customerID int64) ([]domain.Order, error) {
-	query := `SELECT o.orderid, g.title, g.price
+	query := `SELECT o.orderid, g.gameid, g.title, g.price
 	          FROM orders o
 			  JOIN games g
 			  ON o.gameid = g.gameid
-	          WHERE o.customerid = $1;`
+	          WHERE o.customerid = $1 AND status='UNPAID';`
 
 	rows, err := r.DB.Query(query, customerID)
 	if err != nil {
@@ -150,6 +152,7 @@ func (r *OrderRepository) FindAllByCustomerID(customerID int64) ([]domain.Order,
 		var g domain.Order
 		err := rows.Scan(
 			&g.OrderID,
+			&g.GameID,
 			&g.GameTitle,
 			&g.GamePrice,
 		)
@@ -161,4 +164,29 @@ func (r *OrderRepository) FindAllByCustomerID(customerID int64) ([]domain.Order,
 	}
 
 	return orders, nil
+}
+
+func (r *OrderRepository) UpdateUserOrderStatus(orderID int64, status string) error {
+	query := `
+		UPDATE orders
+		SET status = $1
+		WHERE orderID = $2
+		;
+	`
+
+	result, err := r.DB.Exec(query, status, orderID)
+	if err != nil {
+		return err
+	}
+
+	rowsAffected, err := result.RowsAffected()
+	if err != nil {
+		return err
+	}
+
+	if rowsAffected == 0 {
+		return errors.New("Order not found")
+	}
+
+	return nil
 }

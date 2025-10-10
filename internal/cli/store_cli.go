@@ -25,7 +25,11 @@ func gameStore(customerID int64, ucGame *usecase.GameUsecase, ucCat *usecase.Cat
 			Items: items,
 		}
 
-		_, result, _ := menu.Run()
+		_, result, err := menu.Run()
+		if err != nil {
+			fmt.Println("Error: ", err)
+			continue
+		}
 
 		if result == "Back" {
 			break
@@ -54,7 +58,11 @@ func gameStore(customerID int64, ucGame *usecase.GameUsecase, ucCat *usecase.Cat
 				Label: "Pick a game you want",
 				Items: gameItems,
 			}
-			idx, selected, _ := menuGames.Run()
+			idx, selected, err := menuGames.Run()
+			if err != nil {
+				fmt.Println("Error: ", err)
+				continue
+			}
 			if selected == "Back" {
 				break
 			}
@@ -71,24 +79,26 @@ func gameStore(customerID int64, ucGame *usecase.GameUsecase, ucCat *usecase.Cat
 					Label: game.Title,
 					Items: []string{
 						"Buy now",
-						"Add to orders cart",
+						"Add To Orders Cart",
 						"Back",
 					},
 				}
 
-				isPaid := false
-				isAddedToOrder := false
+				var isPaid = false
+				var isAdded = false
 
-				_, selectedMenuGame, _ := menuGame.Run()
+				_, selectedMenuGame, err := menuGame.Run()
+				if err != nil {
+					fmt.Println("Error: ", err)
+					continue
+				}
 				switch selectedMenuGame {
 				case "Buy now":
-					order, err := ucOrder.CreateOrder(customerID, game.GameID)
+					err := payOneGame(customerID, ucOrder, ucPay, game)
 					if err != nil {
 						fmt.Println("Error: ", err)
 						continue
 					}
-					ucPay.CreatePayment(int64(order.OrderID), float64(order.GamePrice), "paid")
-					fmt.Println("Berhasil membayar game")
 					isPaid = true
 				case "Add To Orders Cart":
 					order, err := ucOrder.CreateOrder(customerID, game.GameID)
@@ -98,10 +108,10 @@ func gameStore(customerID int64, ucGame *usecase.GameUsecase, ucCat *usecase.Cat
 					}
 
 					fmt.Printf("%s berhasil dimasukkan ke orders dengan id %d\n", game.Title, order.OrderID)
-					isAddedToOrder = true
+					isAdded = true
 				}
 
-				if isPaid || isAddedToOrder || selectedMenuGame == "Back" {
+				if isPaid || isAdded || selectedMenuGame == "Back" {
 					break
 				}
 			}

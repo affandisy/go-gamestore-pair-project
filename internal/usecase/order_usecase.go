@@ -13,6 +13,7 @@ type OrderRepository interface {
 	FindAllByCustomerID(customerID int64) ([]domain.Order, error)
 	Update(order *domain.Order) error
 	Delete(id int64) error
+	UpdateUserOrderStatus(orderID int64, status string) error
 }
 
 type Orderusecase struct {
@@ -27,6 +28,7 @@ func (u *Orderusecase) CreateOrder(customerID, gameID int64) (*domain.Order, err
 	order := &domain.Order{
 		CustomerID: customerID,
 		GameID:     gameID,
+		Status:     "UNPAID",
 		CreatedAt:  time.Now(),
 	}
 
@@ -54,4 +56,8 @@ func (u *Orderusecase) DeleteOrder(id int64) error {
 
 func (u *Orderusecase) FindAllOrderByCustomerID(customerID int64) ([]domain.Order, error) {
 	return u.repo.FindAllByCustomerID(customerID)
+}
+
+func (u *Orderusecase) UpdateOrderStatus(orderID int64, status string) error {
+	return u.repo.UpdateUserOrderStatus(orderID, status)
 }
