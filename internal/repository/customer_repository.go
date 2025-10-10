@@ -10,6 +10,10 @@ type CustomerRepository struct {
 	DB *sql.DB
 }
 
+func NewCustomerRepository(db *sql.DB) *CustomerRepository {
+	return &CustomerRepository{DB: db}
+}
+
 func (r *CustomerRepository) Create(customer *domain.Customer) error {
 	query := `INSERT INTO customers (name, email, password, createdat, updatedat)
 		VALUES ($1, $2, $3, $4, $5)
