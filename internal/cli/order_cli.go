@@ -7,7 +7,7 @@ import (
 	"github.com/manifoldco/promptui"
 )
 
-func orderGames(customerID int64, ucGame *usecase.GameUsecase, ucOrder *usecase.Orderusecase, ucPay *usecase.Paymentusecase) {
+func orderGames(customerID int64, ucGame *usecase.GameUsecase, ucOrder *usecase.Orderusecase, ucPay *usecase.Paymentusecase, ucLib *usecase.Libraryusecase) {
 	for {
 		orders, err := ucOrder.FindAllOrderByCustomerID(customerID)
 		if err != nil {
@@ -32,7 +32,7 @@ func orderGames(customerID int64, ucGame *usecase.GameUsecase, ucOrder *usecase.
 			break
 		}
 		if selectedOrderMenu == "Bayar semua" {
-			err := payAllGames(customerID, ucPay, ucOrder, orders)
+			err := payAllGames(customerID, ucPay, ucOrder, ucLib, orders)
 			if err != nil {
 				fmt.Println("Error: ", err)
 				continue
@@ -62,7 +62,7 @@ func orderGames(customerID int64, ucGame *usecase.GameUsecase, ucOrder *usecase.
 			switch selectedMenuGameOrder {
 			case "Buy":
 				fmt.Println("Buy", orderID, price)
-				err := payOneGame(customerID, ucOrder, ucPay, game)
+				err := payOneGame(customerID, ucOrder, ucPay, ucLib, game)
 				if err != nil {
 					fmt.Println("Error: ", err)
 					continue

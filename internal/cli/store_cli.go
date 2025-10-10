@@ -7,7 +7,7 @@ import (
 	"github.com/manifoldco/promptui"
 )
 
-func gameStore(customerID int64, ucGame *usecase.GameUsecase, ucCat *usecase.CategoryUsecase, ucOrder *usecase.Orderusecase, ucPay *usecase.Paymentusecase) {
+func gameStore(customerID int64, ucGame *usecase.GameUsecase, ucCat *usecase.CategoryUsecase, ucOrder *usecase.Orderusecase, ucPay *usecase.Paymentusecase, ucLib *usecase.Libraryusecase) {
 	for {
 		categories, err := ucCat.FindAllCategories()
 		if err != nil {
@@ -94,7 +94,7 @@ func gameStore(customerID int64, ucGame *usecase.GameUsecase, ucCat *usecase.Cat
 				}
 				switch selectedMenuGame {
 				case "Buy now":
-					err := payOneGame(customerID, ucOrder, ucPay, game)
+					err := payOneGame(customerID, ucOrder, ucPay, ucLib, game)
 					if err != nil {
 						fmt.Println("Error: ", err)
 						continue
