@@ -3,19 +3,18 @@ CREATE OR REPLACE VIEW v_customer_purchase_history AS
 SELECT
     o.OrderID,
     c.CustomerID,
-    c.name AS customer_name,
-    c.email AS customer_email,
+    c.Name AS customer_name,
+    c.Email AS customer_email,
     g.GameID,
-    g.title AS game_title,
-    g.price,
-    COALESCE(p.status, 'UNPAID') AS payment_status,
-    p.amount AS paid_amount,
+    g.Title AS game_title,
+    g.Price,
+    o.Status AS payment_status,
     o.CreatedAt AS order_date
-FROM orders o
-JOIN customers c ON o.customerID = c.customerID
-JOIN games g ON o.gameID = g.gameID
-LEFT JOIN payments p ON o.orderID = p.orderID
-ORDER BY o.orderID;
+FROM Orders o
+JOIN Customers c ON o.CustomerID = c.CustomerID
+JOIN Games g ON o.GameID = g.GameID
+WHERE o.Status = 'PAID'
+ORDER BY o.OrderID;
 
 -- View Game Terlaris
 CREATE OR REPLACE VIEW v_best_selling_games AS
@@ -35,7 +34,7 @@ SELECT
     SUM(Amount) AS total_revenue,
     COUNT(PaymentID) AS total_payments
 FROM payments
-WHERE Status == "PAID"
+WHERE Status = 'PAID';
 
 -- View Summary
 CREATE OR REPLACE VIEW v_summary AS
@@ -44,4 +43,4 @@ SELECT
     (SELECT COUNT(*) FROM games) AS total_games,
     (SELECT COUNT(*) FROM orders) AS total_orders,
     (SELECT COUNT(*) FROM payments) AS total_payments,
-    (SELECT SUM(amount) FROM payments WHERE status == "PAID") AS total_revenue;
+    (SELECT SUM(amount) FROM payments WHERE status = 'PAID') AS total_revenue;
