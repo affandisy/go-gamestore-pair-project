@@ -156,9 +156,9 @@ func (r *PaymentRepository) PayAllGames(payment *domain.Payment) error {
 		return err
 	}
 
+	var totalAmount float64
 	for rows.Next() {
-		var p domain.Payment
-		err := rows.Scan(&p.Amount)
+		err := rows.Scan(&totalAmount)
 		if err != nil {
 			return err
 		}
@@ -171,7 +171,7 @@ func (r *PaymentRepository) PayAllGames(payment *domain.Payment) error {
 	err2 := r.DB.QueryRow(
 		query2,
 		payment.CustomerID,
-		payment.Amount,
+		totalAmount,
 		payment.Status,
 		payment.CreatedAt,
 	).Scan(&payment.PaymentID)
